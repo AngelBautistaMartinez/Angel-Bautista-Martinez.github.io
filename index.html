@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NtQueryInformationProcess Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <title>Anti-Debug Tricks</title>
     <style>
         * {
             margin: 0;
@@ -15,227 +12,177 @@
         }
 
         body {
-            background-color: #1e1e1e;
+            background-color: #000000;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #1a1a1a;
             padding: 40px 20px;
+            text-align: center;
+            border-bottom: 3px solid #2a2a2a;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            color: #4ec9b0;
-            font-size: 2.5em;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #404040;
-            padding-bottom: 15px;
-        }
-
-        h2 {
-            color: #569cd6;
-            font-size: 1.8em;
-            margin-top: 50px;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: #4ec9b0;
-            font-size: 1.3em;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-
-        .explanation {
-            background-color: #2d2d2d;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #569cd6;
-        }
-
-        .explanation p {
-            margin-bottom: 15px;
-            font-size: 1.05em;
-        }
-
-        .explanation p:last-child {
-            margin-bottom: 0;
-        }
-
-        .code-section {
-            margin-bottom: 30px;
-        }
-
-        .code-label {
-            color: #9cdcfe;
-            font-size: 1.1em;
-            font-weight: 600;
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
             margin-bottom: 10px;
+        }
+
+        .logo-text {
+            font-size: 3em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .logo-bracket {
+            color: #ffffff;
+        }
+
+        .logo-r {
+            background-color: #ff6b9d;
+            color: #ffffff;
+            padding: 5px 20px;
+            display: inline-block;
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            font-size: 0.9em;
+            color: #cccccc;
+            letter-spacing: 4px;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .content {
+            background-color: #2a2a2a;
+            min-height: calc(100vh - 200px);
+            padding: 60px 20px;
+        }
+
+        .grid-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            padding: 20px;
+        }
+
+        .category-card {
+            background-color: #ff6b9d;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
             display: block;
         }
 
-        pre {
-            background-color: #1e1e1e;
-            border: 1px solid #404040;
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+        }
+
+        .icon-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            padding: 20px;
-            overflow-x: auto;
-            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
         }
 
-        code {
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 0.95em;
+        .category-title {
+            color: #4db8e8;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 15px;
         }
 
-        .inline-code {
-            background-color: #3c3c3c;
-            color: #ce9178;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Consolas', 'Courier New', monospace;
-        }
-
-        a {
-            color: #569cd6;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .note {
-            background-color: #2d4a2d;
-            border-left: 4px solid #4ec9b0;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-
-        .warning {
-            background-color: #4a3d2d;
-            border-left: 4px solid #ce9178;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
+        @media (max-width: 768px) {
+            .logo-text {
+                font-size: 2em;
+            }
+            
+            .title {
+                font-size: 1.8em;
+            }
+            
+            .grid-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 30px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>NtQueryInformationProcess Documentation</h1>
-
-        <h2>1.3. NtQueryInformationProcess()</h2>
-
-        <div class="explanation">
-            <p>The function <span class="inline-code">ntdll!NtQueryInformationProcess()</span> can retrieve a different kind of information from a process. It accepts a <span class="inline-code">ProcessInformationClass</span> parameter which specifies the information you want to get and defines the output type of the <span class="inline-code">ProcessInformation</span> parameter.</p>
+    <div class="header">
+        <div class="logo">
+            <span class="logo-text">
+                <span class="logo-bracket">cp&lt;</span><span class="logo-r">r</span><span class="logo-bracket">&gt;</span>
+            </span>
+            <span class="title">Anti-Debug Tricks</span>
         </div>
-
-        <h3>1.3.1. ProcessDebugPort</h3>
-
-        <div class="explanation">
-            <p>It is possible to retrieve the port number of the debugger for the process using the <span class="inline-code">ntdll!NtQueryInformationProcess()</span>. There is a documented class <span class="inline-code">ProcessDebugPort</span>, which retrieves a DWORD value equal to <span class="inline-code">0xFFFFFFFF</span> (decimal -1) if the process is being debugged.</p>
-        </div>
-
-        <div class="code-section">
-            <span class="code-label">C/C++ Code</span>
-            <pre><code class="language-cpp">typedef NTSTATUS (NTAPI *TNtQueryInformationProcess)(
-    IN HANDLE               ProcessHandle,
-    IN PROCESSINFOCLASS     ProcessInformationClass,
-    OUT PVOID               ProcessInformation,
-    IN ULONG                ProcessInformationLength,
-    OUT PULONG              ReturnLength
-);
-
-HMODULE hNtdll = LoadLibraryA("ntdll.dll");
-if (hNtdll)
-{
-    auto pfnNtQueryInformationProcess = (TNtQueryInformationProcess)GetProcAddress(
-        hNtdll, "NtQueryInformationProcess");
-    
-    if (pfnNtQueryInformationProcess)
-    {
-        DWORD dwDebugPort = 0;
-        NTSTATUS status = pfnNtQueryInformationProcess(
-            GetCurrentProcess(),
-            ProcessDebugPort,
-            &dwDebugPort,
-            sizeof(DWORD),
-            NULL);
-        
-        if (status == 0 && dwDebugPort == 0xFFFFFFFF)
-        {
-            printf("Debugger detected!\n");
-        }
-    }
-    FreeLibrary(hNtdll);
-}</code></pre>
-        </div>
-
-        <h3>1.3.2. ProcessDebugObjectHandle</h3>
-
-        <div class="explanation">
-            <p>Another useful information class is <span class="inline-code">ProcessDebugObjectHandle</span>. When a debugger is attached to a process, a debug object is created and associated with the process. This method attempts to retrieve a handle to that debug object.</p>
-            <p>If the function succeeds and returns a valid handle, it indicates that the process is being debugged. The handle should be closed using <span class="inline-code">CloseHandle()</span> after use.</p>
-        </div>
-
-        <div class="code-section">
-            <span class="code-label">C/C++ Code</span>
-            <pre><code class="language-cpp">HANDLE hDebugObject = NULL;
-NTSTATUS status = pfnNtQueryInformationProcess(
-    GetCurrentProcess(),
-    ProcessDebugObjectHandle,
-    &hDebugObject,
-    sizeof(HANDLE),
-    NULL);
-
-if (status == 0 && hDebugObject != NULL)
-{
-    printf("Debugger detected via debug object!\n");
-    CloseHandle(hDebugObject);
-}</code></pre>
-        </div>
-
-        <div class="note">
-            <strong>Note:</strong> The ProcessDebugObjectHandle method is available on Windows XP and later versions. It provides a more reliable detection method compared to ProcessDebugPort.
-        </div>
-
-        <h3>1.3.3. ProcessDebugFlags</h3>
-
-        <div class="explanation">
-            <p>The <span class="inline-code">ProcessDebugFlags</span> information class returns the inverse of the NoDebugInherit flag. When a process is being debugged, this flag is set to 0. When not being debugged, it returns a non-zero value (typically 1).</p>
-            <p>This method is particularly useful because it's harder for anti-anti-debugging tools to intercept, as it's less commonly monitored than other detection methods.</p>
-        </div>
-
-        <div class="code-section">
-            <span class="code-label">C/C++ Code</span>
-            <pre><code class="language-cpp">DWORD dwDebugFlags = 0;
-NTSTATUS status = pfnNtQueryInformationProcess(
-    GetCurrentProcess(),
-    ProcessDebugFlags,
-    &dwDebugFlags,
-    sizeof(DWORD),
-    NULL);
-
-if (status == 0 && dwDebugFlags == 0)
-{
-    printf("Debugger detected via debug flags!\n");
-}</code></pre>
-        </div>
-
-        <div class="warning">
-            <strong>Warning:</strong> These anti-debugging techniques can be bypassed by sophisticated debuggers and should not be relied upon as the sole protection mechanism. Always use multiple detection methods in combination.
-        </div>
-
+        <div class="subtitle">Check Point Research</div>
     </div>
 
-    <script>
-        hljs.highlightAll();
-    </script>
+    <div class="content">
+        <div class="grid-container">
+            <a href="pages/debug-flags.html" class="category-card">
+                <div class="icon-container">🚩</div>
+                <div class="category-title">Debug Flags</div>
+            </a>
+
+            <a href="pages/object-handles.html" class="category-card">
+                <div class="icon-container">⚙️</div>
+                <div class="category-title">Object Handles</div>
+            </a>
+
+            <a href="pages/exceptions.html" class="category-card">
+                <div class="icon-container">🛑</div>
+                <div class="category-title">Exceptions</div>
+            </a>
+
+            <a href="pages/timing.html" class="category-card">
+                <div class="icon-container">⏱️</div>
+                <div class="category-title">Timing</div>
+            </a>
+
+            <a href="pages/process-memory.html" class="category-card">
+                <div class="icon-container">💾</div>
+                <div class="category-title">Process Memory</div>
+            </a>
+
+            <a href="pages/assembly-instructions.html" class="category-card">
+                <div class="icon-container">📄</div>
+                <div class="category-title">Assembly Instructions</div>
+            </a>
+
+            <a href="pages/interactive-checks.html" class="category-card">
+                <div class="icon-container">🔍</div>
+                <div class="category-title">Interactive Checks</div>
+            </a>
+
+            <a href="pages/misc.html" class="category-card">
+                <div class="icon-container">👻</div>
+                <div class="category-title">Misc</div>
+            </a>
+        </div>
+    </div>
 </body>
 </html>
