@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anti-Debug Tricks</title>
+    <title>Angel Code</title>
     <style>
         * {
             margin: 0;
@@ -18,35 +18,10 @@
         }
 
         .header {
-            background-color: #1a1a1a;
+            background-color: #000000;
             padding: 40px 20px;
             text-align: center;
-            border-bottom: 3px solid #2a2a2a;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 10px;
-        }
-
-        .logo-text {
-            font-size: 3em;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-        }
-
-        .logo-bracket {
-            color: #ffffff;
-        }
-
-        .logo-r {
-            background-color: #ff6b9d;
-            color: #ffffff;
-            padding: 5px 20px;
-            display: inline-block;
+            border-bottom: 3px solid #1a1a1a;
         }
 
         .title {
@@ -64,9 +39,23 @@
         }
 
         .content {
-            background-color: #2a2a2a;
+            background-color: #000000;
             min-height: calc(100vh - 200px);
             padding: 60px 20px;
+        }
+
+        .phase-title {
+            text-align: center;
+            font-size: 2em;
+            color: #dc143c;
+            margin: 80px 0 30px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+        
+        .phase-title:first-of-type {
+            margin-top: 40px;
         }
 
         .grid-container {
@@ -79,7 +68,7 @@
         }
 
         .category-card {
-            background-color: #ff6b9d;
+            background-color: #dc143c;
             border-radius: 8px;
             padding: 30px;
             text-align: center;
@@ -92,7 +81,7 @@
 
         .category-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+            box-shadow: 0 10px 30px rgba(220, 20, 60, 0.5);
         }
 
         .icon-container {
@@ -108,17 +97,13 @@
         }
 
         .category-title {
-            color: #4db8e8;
+            color: #ffffff;
             font-size: 1.2em;
             font-weight: 600;
             margin-top: 15px;
         }
 
         @media (max-width: 768px) {
-            .logo-text {
-                font-size: 2em;
-            }
-            
             .title {
                 font-size: 1.8em;
             }
@@ -133,24 +118,23 @@
 <body>
     <div class="header">
         <div class="logo">
-            <span class="logo-text">
-                <span class="logo-bracket">cp&lt;</span><span class="logo-r">r</span><span class="logo-bracket">&gt;</span>
-            </span>
-            <span class="title">Anti-Debug Tricks</span>
+            <span class="title">Angel Code</span>
         </div>
-        <div class="subtitle">Check Point Research</div>
+        <div class="subtitle">Malware Research</div>
     </div>
 
     <div class="content">
+        <h2 class="phase-title">Phase 1</h2>
+        
         <div class="grid-container">
             <a href="pages/debug-flags.html" class="category-card">
-                <div class="icon-container">🚩</div>
-                <div class="category-title">Debug Flags</div>
+                <div class="icon-container">🐞</div>
+                <div class="category-title">Anti-Debug</div>
             </a>
 
             <a href="pages/object-handles.html" class="category-card">
-                <div class="icon-container">⚙️</div>
-                <div class="category-title">Object Handles</div>
+                <div class="icon-container">🖥️</div>
+                <div class="category-title">Hardware</div>
             </a>
 
             <a href="pages/exceptions.html" class="category-card">
@@ -160,12 +144,12 @@
 
             <a href="pages/timing.html" class="category-card">
                 <div class="icon-container">⏱️</div>
-                <div class="category-title">Timing</div>
+                <div class="category-title">Time</div>
             </a>
 
             <a href="pages/process-memory.html" class="category-card">
                 <div class="icon-container">💾</div>
-                <div class="category-title">Process Memory</div>
+                <div class="category-title">Processes</div>
             </a>
 
             <a href="pages/assembly-instructions.html" class="category-card">
@@ -175,12 +159,26 @@
 
             <a href="pages/interactive-checks.html" class="category-card">
                 <div class="icon-container">🔍</div>
-                <div class="category-title">Interactive Checks</div>
+                <div class="category-title">VM & Analysis Checks</div>
+            </a>
+        </div>
+
+        <h2 class="phase-title">Phase 2</h2>
+        
+        <div class="grid-container">
+            <a href="pages/phase2-eye.html" class="category-card">
+                <div class="icon-container">👁️</div>
+                <div class="category-title">abc</div>
             </a>
 
-            <a href="pages/misc.html" class="category-card">
-                <div class="icon-container">👻</div>
-                <div class="category-title">Misc</div>
+            <a href="pages/phase2-keyboard.html" class="category-card">
+                <div class="icon-container">⌨️</div>
+                <div class="category-title">abc</div>
+            </a>
+
+            <a href="pages/phase2-meerkat.html" class="category-card">
+                <div class="icon-container">🦫</div>
+                <div class="category-title">abc</div>
             </a>
         </div>
     </div>
