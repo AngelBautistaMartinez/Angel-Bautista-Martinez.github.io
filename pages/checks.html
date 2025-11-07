@@ -1,1 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VM Artifact Detection - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">VM Artifact Detection</div>
+    </div>
+
+    <div class="container">
+        <h3>1. Virtual Machine Mutex</h3>
+
+        <div class="explanation">
+            <p>A lock used by programs to make sure only one copy of a process or thread is running at a time. Some VMs create known mutexes when analyzing malware, so the program checks for those mutexes and flags red when it spots one.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+char *vmMutexs[] = {
+    "__vmware_user__",
+    "VMwareGuest",
+    "vmware-tray-dnd",
+    "vmware-user",
+    "vmware-authd",
+    "vmware-service",
+    "VMwareServiceMain",
+    "VMToolsDaemonMutex",
+    "VMwareSnapshotMutex",
+    "VBoxTrayIPC",
+    "VBoxServiceIPC",
+    "VBoxSharedCrOpenMutex",
+    "VBoxGuestAdditionsMutex",
+    "prl_tools_service_mutex",
+    "prl_tools_mutex",
+    "prl_tools_shared_memory_mutex",
+    "SbieSvcMutex",
+    "SbieDllMutex",
+    "SandboxieControlMutex",
+    "VBoxMiniRdrDN",
+    "VBoxGuest",
+    "VMToolsHookQueueLock",
+    "VMwareGuestCopyPasteMutex",
+    "VMwareGuestDnDDataMutex"
+};
+
+int checkMutex(char *Mutex){
+    //opens a mutex          asking for all permissions, false=not inheriting, name of mutex
+    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, Mutex);
+
+    if(hMutex){
+        CloseHandle(hMutex);
+        return 1;
+    }
+    return 0;
+}
+
+int main(){
+    int counter = 0;
+    for(int i = 0; i &lt; sizeof(vmMutexs)/sizeof(vmMutexs[0]); i++){
+        if(checkMutex(vmMutexs[i]) == 1){
+            printf("!!VM!!\n");
+            counter++;
+        }
+    }
+    if(counter == 0){
+        printf("No VM Carry On\n");
+    }
+    
+}</code></pre>
+        </div>
+
+        <h3>2. Virtual Machine Files</h3>
+
+        <div class="explanation">
+            <p>This technique allows you to search for files and directories that have names of VMs and analysis tools. Unrelated to detection, this also allows you to search for certain files/directories you want to find. You can add any tools you may want to look for in the list of "VMFiles".</p>
+            <p>There is a way to counter this detection - you can simply rename the file before running the malware. For example, renaming VirtualBox.exe to dog.exe can trick basic checks.</p>
+            <p>There is a counter-counter technique: looking at the window title bars can detect what software is actually running instead of relying on the name. Just see the windows bar which does not change even if the executable name changes. We will use this technique later on to get better results.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt; //basic usage
+#include &lt;shlwapi.h&gt; //for StrStrI 
+#include &lt;windows.h&gt; //for file and drive usage
+#include &lt;string.h&gt; //for 
+
+char *VMFileNames[] = {
+    //can add application folders too or whatever files/folders you want to look for
+    "Virtual box",
+    "vmware",       // files starting with "vm" (case-insensitive)
+    "vbox",     // files starting with "vbox"
+    "qemu",
+    "cuckoo",
+    "VMware",   
+};
+
+int searchFileSystem(char *path){
+    char searchPath[MAX_PATH]; //buffer to hold dir || value of 260 which is the max length of a windows file/folder
+    WIN32_FIND_DATA dataOfObject;//struct that stores info
+    //about file/dir||cFileName = name of file or dir||dwFileAttributes = tells us if file OR dir||holds creation time, size, etc.
+
+    HANDLE hfind;//tracks resources
+
+    int count = 0;
+
+    /*string formating function
+    creates a new string and stores it in searchPath
+    */
+    snprintf(searchPath, MAX_PATH, "%s\\*", path);
+    //builds path "C:" -&gt; "C:\*"
+    //Win API func || & = pointer to output the data
+    hfind = FindFirstFile(searchPath, &dataOfObject);
+   //if file opening fails
+    if(hfind == INVALID_HANDLE_VALUE){
+        return 0;
+    }
+    //if cFileName == . or .. continue so we dont go in circles
+    do {
+        if(strcmp(dataOfObject.cFileName, ".") == 0 || strcmp(dataOfObject.cFileName, "..") == 0){
+            continue;
+        }
+
+        char fullPath[MAX_PATH];
+        snprintf(fullPath, MAX_PATH, "%s\\%s", path, dataOfObject.cFileName);
+
+        // Check VM strings case-insensitively
+        for (int i = 0; i &lt; (sizeof(VMFileNames) / sizeof(VMFileNames[0])); i++) {
+            if (StrStrI(dataOfObject.cFileName, VMFileNames[i])) {
+                printf("\nAnalysis file found: %s\n", fullPath);
+                //FindClose(hfind);
+                count++;
+            }
+        }
+        //if FILE_ATTRIBUTE_DIRECTORY(bit) is on = dir
+        if(dataOfObject.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
+            if(searchFileSystem(fullPath) == 1){
+                //FindClose(hfind);
+                count+=searchFileSystem(fullPath);
+            }  
+        }
+        //gets nxt file/folder in current dir and keeps looping until no items
+    } while (FindNextFile(hfind, &dataOfObject));
+    
+    FindClose(hfind);   
+    return count;
+}
+
+int searchDrive(){
+    //returns a bit mask A:0 B:1 C:2 D:3
+    DWORD drives = GetLogicalDrives();
+    char driveLetter;
+    int count = 0;
+
+    printf("Found Drives:\n");
+
+    for(int i = 0; i &lt; 26; i++){
+        //if bit i = drive exists
+        if(drives & (1 &lt;&lt; i)){
+            driveLetter = 'A'+i;
+            char drivePath[4];
+            snprintf(drivePath, sizeof(drivePath), "%c:", driveLetter);
+            //just get all drives?
+            if(GetDriveType(drivePath) == DRIVE_FIXED){
+                printf("\n------ Contents of %s ------\n", drivePath);
+            }
+            //do more research on if() when returns
+            count+=searchFileSystem(drivePath);
+        }
+    }
+    return count;
+}
+
+int main(void){
+    int found = searchDrive();
+}</code></pre>
+        </div>
+
+        <h3>3. Virtual Machine Pipes</h3>
+
+        <div class="explanation">
+            <p>A VM pipe is a virtual communication channel that allows data exchange between a host system and a virtual machine, commonly used for debugging, serial port emulation, or inter-VM messaging without relying on traditional network interfaces. So we can try to look for these pipes to enumerate VMs.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+char *VMPipes[] = {
+    "Vmmemctl",
+    "vgauth-service",
+    "VBoxTray",
+    "VBoxTrayIPC",
+    "VBoxGuest",
+    "VBoxVideo",
+    "VBoxMouse",
+    "VBoxMiniRdr",
+    "vmware-authdpipe",
+    "vmware-vmtools",
+    "vmware-usbarbitrator",
+    "vmware-vmci",
+    "vmware-vix",
+    "vmware-vmtoolsd-pipe",
+    "vmware-vmblock",
+    "vmware-vmdebug"
+
+};
+
+int listPipes(){
+    //pipes are basically files
+    //struc that holds pipe info
+    WIN32_FIND_DATA findData;
+    //finds the first file, 
+    HANDLE hFind = FindFirstFile("\\\\.\\pipe\\*", &findData);
+
+    if(hFind == INVALID_HANDLE_VALUE){
+        printf("\nFailed to enumerate pipes\n");
+        return -1;
+    }
+
+    //starting pipe checking
+    do
+    {
+        for(int i = 0; i &lt; sizeof(VMPipes) / sizeof(VMPipes[0]); i++){
+            if(_stricmp(findData.cFileName, VMPipes[i]) == 0){
+                //matching string 
+                return 1;
+            }
+            
+        }
+    } while (FindNextFile(hFind, &findData));
+    
+    FindClose(hFind);
+    return 0;
+}
+
+int main(){
+    if(listPipes() &lt;= 0){
+        printf("No VM Pipes found\n");
+    }else{
+        printf("VM Pipes found\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>4. Virtual Machine Services</h3>
+
+        <div class="explanation">
+            <p>What are services? Background processes that perform specific tasks without direct user interaction. Some are made for the interaction between a virtual machine (VM) and its Hyper-V host. If there are more than 2 VM services, the machine is considered a VM. You can change the counter. And I don't recommend adding Microsoft Hyper-V as a service to look for, as real machines will look like VMs since real Microsoft machines come with these services and will produce a false positive.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+int counter = 0;
+
+char *servicesList[] = {
+    "VGAuthService",
+    "VMTools",
+    "VBoxService",
+    "VBoxTray",
+    "VBoxVmService",
+    "VMware Alias Manager and Ticket Service",
+    "VMware Snapshot Provider",
+    "qemu-ga",
+    "Parallels Tools",
+};
+
+int listServices(){
+    printf("\n----Services-----\n");
+    //opens a connection to the Service Control Manager
+    SC_HANDLE hSCManager = OpenSCManager(NULL,NULL, SC_MANAGER_ENUMERATE_SERVICE);
+
+    if(!hSCManager){
+        printf("Failed to open SCManager\n");
+        return 1;
+    }
+    //how much memory is needed for the service list
+    DWORD bytesNeeded = 0; 
+    //how many services were found
+    DWORD servicesReturned = 0;
+    //used if we need to continue from a previous call (pagination)
+    DWORD resumeHandle = 0;
+
+    //first call to find out how much memory is needed
+    EnumServicesStatusEx(
+        hSCManager,
+        SC_ENUM_PROCESS_INFO,
+        SERVICE_WIN32,
+        SERVICE_STATE_ALL,
+        NULL,
+        0,
+        &bytesNeeded, //stores required size
+        &servicesReturned,
+        &resumeHandle,
+        NULL
+    );
+    //allocates memory for the list
+    //BYTE = pointer to a block of memory
+    LPBYTE buffer = (LPBYTE)malloc(bytesNeeded);
+
+    //if mem alloc fail clean up
+    if(!buffer){
+        CloseServiceHandle(hSCManager);
+        return 1;
+    }
+    
+    //call it again but pass the alloc memory
+    if(EnumServicesStatusEx(
+        hSCManager,
+        SC_ENUM_PROCESS_INFO,
+        SERVICE_WIN32,
+        SERVICE_STATE_ALL,
+        buffer,
+        bytesNeeded,
+        &bytesNeeded,
+        &servicesReturned,
+        &resumeHandle,
+        NULL
+    )){
+        //Cast the generic buffer into a structured pointer
+        LPENUM_SERVICE_STATUS_PROCESS services = (LPENUM_SERVICE_STATUS_PROCESS)buffer;
+        //loop through returned services
+        for(int i = 0; i &lt; servicesReturned; i++){
+            for(int j = 0; j &lt; sizeof(servicesList)/sizeof(servicesList[0]); j++){
+                if(_stricmp(services[i].lpServiceName, servicesList[j]) == 0){
+                    printf("Service %s | Name: %s\n", services[i].lpServiceName, services[i].lpDisplayName);
+                    counter++;
+                    
+                }
+            }
+            
+        }
+        
+    } else {
+        printf("\nFailed to enumerate services\n");
+        return 1;
+    }
+    free(buffer);
+    CloseServiceHandle(hSCManager);
+    return 0;
+
+}
+
+int main(){
+    listServices();
+    
+    if(counter &gt;= 2){
+        printf("\nLikey a VM\n");
+    }
+    else{
+        printf("\nNot a VM\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
