@@ -1,1 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Debug - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Anti-Debug</div>
+    </div>
+
+    <div class="container">
+        <h3>1. Checking Debugger in Parent Process</h3>
+
+        <div class="explanation">
+            <p>Malware can check what its parent function is. If it's running a parent process that's a debugged process, it indicates a debugger. The child process could invoke DebugActiveProcess with its parent process as a parameter. If the parent process (the original malware process) is already being debugged, this function will throw an exception, indicating to the malware that there's a debugger attached to it.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;windows.h&gt;
+#include &lt;tlhelp32.h&gt;
+#include &lt;stdio.h&gt;
+
+int CheckForDebug() {
+    //get this programs process ID
+    DWORD currentPid = GetCurrentProcessId();   
+    //set up for parent process ID
+    DWORD parentPid = 0;                        
+
+    printf("Current PID: %lu\n", currentPid);
+    //get snapshot of all processes
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+    if (hSnapshot == INVALID_HANDLE_VALUE) {
+        printf("Snapshot failed, error %lu\n", GetLastError());
+        return -1;
+    }
+    //set up process structure
+    PROCESSENTRY32 pe;
+    pe.dwSize = sizeof(PROCESSENTRY32);
+
+    //loop through processes
+    if (Process32First(hSnapshot, &pe)) {
+        do {
+            //if we find the parent process 
+            if (pe.th32ProcessID == currentPid) {
+                parentPid = pe.th32ParentProcessID;   
+                break;                               
+            }
+        } while (Process32Next(hSnapshot, &pe));
+    }
+    //close handle
+    CloseHandle(hSnapshot);
+
+    if (parentPid == 0) {
+        printf("Could not find parent PID.\n");
+        return -1;
+    }
+
+    printf("Parent PID: %lu\n", parentPid);
+
+    //if the DebugActiveProcess function does not work
+    if (!DebugActiveProcess(parentPid)) {
+        return 1;
+    } else {
+        //if we can act as a debugger to our parent process
+        printf("Successfully attached to parent.\n");
+        DebugActiveProcessStop(parentPid); 
+    }
+
+    return 0;
+}
+
+
+int main(){
+    if(CheckForDebug() == 0){
+        printf("Parent Process not being debugged.\n");
+    }
+    else if(CheckForDebug() == 1){
+        printf("!Process being Debugged!\n");
+        
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>2. Calling DebugBreak to see Exception</h3>
+
+        <div class="explanation">
+            <p>If malware executes the instruction int 3 or DebugBreak() and it's not being debugged, an EXCEPTION_BREAKPOINT will be raised and the exception handler will be invoked. Of course, the opposite is also true. If this EXCEPTION_BREAKPOINT doesn't invoke the exception, that means the debugger probably caught the Exception.</p>
+            <p>Note: I didn't use __asm(int3) because of my system component, so I used DebugBreak() and used my own handler to see what exception we got.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+//make a dummy function to pose as a real funtion the malware would have
+void dummyFunction1(){
+    printf("I am dummy function 1\n");
+}
+
+//we determine what happens when theres an exception
+//argument is a exception structure we will use to get info about the exception
+LONG WINAPI ownHandler(EXCEPTION_POINTERS *ExceptionInfo){
+    //we go from info to record to code in the struct to see if we have a BREAKPOINT(aka no debugger caught the exception)
+    if(ExceptionInfo-&gt;ExceptionRecord-&gt;ExceptionCode == EXCEPTION_BREAKPOINT){
+        printf("No Debugger Program caught DebugBreak Exception\n");
+        //skips debug instruction we called
+        ExceptionInfo-&gt;ContextRecord-&gt;Rip++;
+
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+int main(){
+    //lets us implement our own handler
+    //1 = our handle gets called first to be able to see exceptions
+    AddVectoredExceptionHandler(1, ownHandler);
+    dummyFunction1();
+    DebugBreak();
+    return 0;   
+}</code></pre>
+        </div>
+
+        
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
