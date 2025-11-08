@@ -1,1 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Connectivity - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Internet Connectivity & Network Artifacts</div>
+    </div>
+
+    <div class="container">
+        <h3>1. Checking MAC Addresses</h3>
+
+        <div class="explanation">
+            <p>Malware can check the host's adapters to see if any match with default MAC addresses from VM machines.</p>
+            <p>Note: This will only work if the VM host is using the default MAC addresses VM applications provide. The researcher can go out of their way to change the MAC addresses of their machines and defeat this technique.</p>
+            <p>Note: The functions used only work for IPv4, which isn't a problem as everyone still uses IPv4 addresses.</p>
+            <p>Note: Malware sometimes checks MAC addresses to see if it has infected the right system.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;iphlpapi.h&gt;
+
+
+int check(){
+    //structure that contains info about a network adapter on the computer
+    IP_ADAPTER_INFO adapterInfo[16];
+    DWORD buffer = sizeof(adapterInfo);
+    //lets us get info about the network adapters
+    if(GetAdaptersInfo(adapterInfo, &buffer) != ERROR_SUCCESS) return -1;
+
+    PIP_ADAPTER_INFO pAdapter = adapterInfo;
+    while(pAdapter){
+        //print the adapters name
+        printf("Adapter: %s\n", pAdapter-&gt;Description);
+        //print the MAC
+        printf("MAC: %02X-%02X-%02X-%02X-%02X-%02X\n", pAdapter-&gt;Address[0], pAdapter-&gt;Address[1], pAdapter-&gt;Address[2], pAdapter-&gt;Address[3], pAdapter-&gt;Address[4], pAdapter-&gt;Address[5]);
+        //checks against defult VMware and Virutal Box MAC addresses
+        if((pAdapter-&gt;Address[0] == 0x00 && pAdapter-&gt;Address[1] == 0x50 && pAdapter-&gt;Address[2] == 0x56) || 
+            (pAdapter-&gt;Address[0] == 0x00 && pAdapter-&gt;Address[1] == 0x0C && pAdapter-&gt;Address[2] == 0x29) || 
+            (pAdapter-&gt;Address[0] == 0x00 && pAdapter-&gt;Address[1] == 0x05 && pAdapter-&gt;Address[2] == 0x69) || 
+            (pAdapter-&gt;Address[0] == 0x08 && pAdapter-&gt;Address[1] == 0x00 && pAdapter-&gt;Address[2] == 0x27) ||
+            (pAdapter-&gt;Address[0] == 0x0A && pAdapter-&gt;Address[1] == 0x00 && pAdapter-&gt;Address[2] == 0x27)){
+            printf("[!]Virutal Machine MAC address found: %s\n", pAdapter-&gt;Description);
+            return 1;
+        }
+        //continue loop
+        pAdapter = pAdapter-&gt;Next;
+    }
+    printf("No Virutal machine MAC adress found\n");
+    return 0;
+
+}
+
+int main(int argc, char *argv[]){
+    check();
+}</code></pre>
+        </div>
+
+        <h3>2. Checking IP Addresses</h3>
+
+        <div class="explanation">
+            <p>Malware can check for IPs by getting the hostname's IP and checking it with a list of wanted IPs. This method can be used to check whether the malware is in a VM, as some VMs like VirtualBox, VMware, and Cuckoo often come with default IPs. It can also be used to check if the malware has infected the right target.</p>
+            <p>Note: To solve this problem, you can change the IP and the MAC address of your VM during creation.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;winsock2.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;ws2tcpip.h&gt;
+#include &lt;string.h&gt;
+
+char *IPsWanted[] = {"10.0.2.2", //Virtualbox NAT gateway IP
+                    "10.0.2.15",
+                    "10.0.2.3", //virtbox DNS proxy
+                    "10.0.2.", //Virtubox default subnet
+                    "192.168.56.101"//default cuckoo IP
+                    };
+
+
+int checkIPAddress(){
+
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2,2), &wsa);
+    struct in_addr addr;
+
+    char hostname[256];
+    //setting up struct that represents IPv4 address
+    struct hostent *host;
+    //gets the standard host name for the local computer
+    //          where to store, size of buffer that is used to store
+    if(gethostname(hostname, sizeof(hostname)) == SOCKET_ERROR){
+        return -1;
+    }
+    //gets host information from hostname from host db
+    host = gethostbyname(hostname);
+
+    if(!host){
+        return -1;
+    }
+
+    int i = 0;
+
+    if (host-&gt;h_addrtype == AF_INET)
+        {
+            while (host-&gt;h_addr_list[i] != 0) {
+                //copy our host struct address in addr via pointer
+                addr.s_addr = *(u_long *) host-&gt;h_addr_list[i++];
+                //                                  make it a readable IP address
+                printf("IP Address #%d: %s\n", i, inet_ntoa(addr));
+                //check if IP match wanted IP
+                //          src             wanted          length
+                for(int j = 0; j &lt; sizeof(IPsWanted) / sizeof(IPsWanted[0]); j++){
+                    printf("Checking for IP address: %s\n", IPsWanted[j]);
+                    if(strncmp(inet_ntoa(addr), IPsWanted[j], strlen(IPsWanted[j])) == 0){
+                        printf("IP MATCH: %s\n", inet_ntoa(addr));
+                        return 1;
+                    }
+                
+                }
+                
+            }
+        }
+    
+    printf("No IP Match.\n");
+    WSACleanup();
+    return 0;
+
+}
+
+int main(){
+    checkIPAddress();
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>3. Checking TCP Connections</h3>
+
+        <div class="explanation">
+            <p>Looking at TCP connections can determine whether it is a VM or real host, as VMs will have little to no connections since VMs are closed off or use a fake network.</p>
+            <p>We check if the connection is in an ESTABLISHED state and if it's not the local host for multiple reasons:</p>
+            <p>1. Some Windows background services run in the background (Windows Update, Windows Defender, Telemetry) that can keep connections open.</p>
+            <p>2. Programs/Services talk to themselves sometimes through localhost IP and TCP (VSCode, Windows Search).</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;winsock2.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;iphlpapi.h&gt;   // For GetTcpTable and network info
+#include &lt;wtsapi32.h&gt;
+
+int count = 0;
+
+void checkTCPConnections(){
+    //structure to hold tcp table info
+    PMIB_TCPTABLE tcpTable;
+    DWORD size = 0;
+    
+
+    //ask tcp table how much memory do we need to allocate
+    //NULL in struc tells the func "just tell me the size"
+    //FALSE = dont sort
+    GetTcpTable(NULL, &size, FALSE);
+    //allocate the memory needed
+    tcpTable = (PMIB_TCPTABLE)malloc(size);
+
+    if(GetTcpTable(tcpTable, &size, FALSE) == NO_ERROR){
+        //-&gt; a pointer to a item in a structure
+
+        for(int i = 0; i &lt; tcpTable-&gt;dwNumEntries; i++){
+            MIB_TCPROW row = tcpTable-&gt;table[i];
+
+            if(row.dwState != MIB_TCP_STATE_ESTAB){
+                continue;
+            }
+
+            struct in_addr addr;
+            //putting raw number into winsock format
+            addr.S_un.S_addr = row.dwRemoteAddr;
+            //convert IP to string
+            char* ip = inet_ntoa(addr);
+
+            if(strcmp(ip, "127.0.0.1") == 0){
+                continue;
+            }
+            count++;
+
+        }
+    }else{
+        printf("Error: %lu\n", GetLastError());
+    }
+
+    free(tcpTable); //clean up mem
+}
+
+
+int main(){
+    checkTCPConnections();
+    if(count&gt;=4){
+        printf("TCP connections: %d May be a real host\n", count);
+    } else{
+        printf("TCP connections: %d May be a VM\n", count);
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>4. Checking Internet Connection</h3>
+
+        <div class="explanation">
+            <p>Some VMs are offline, which we can check by sending a ping to a website like Google and looking to see if we get a reply. There are multiple ways to do this, as it's simply just pinging an IP/website. You can use cmd/powershell or other Windows programs or applications, but to follow the C trend, we will ping it with a C script - no Windows reliability. So this is C network code (learning this is harder than assembly (no joke)).</p>
+            <p>Note: You can use the websites in the list or add any websites to test for connection, but if you're going to add websites, please add websites that you know are going to be online most of the time. If the website is offline, then the host will be marked as VM even though it's the website's fault it is down.</p>
+            <p>Here we try to connect to offline and online websites to see how they both act. If the website is offline, it will try another website. Note: See how the offline website is seen twice - it's because the net functions we use can be IPv4 or IPv6 but are also multi-threaded.</p>
+            <p>So if it can connect to any website, it will mark it as not a VM and vice versa.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;winsock2.h&gt;
+#include &lt;ws2tcpip.h&gt; //gets us accesses to IP4.IPv6 functions 
+
+char *websites[] = {
+    "google.com",
+    "youtube.com",
+    "facebook.com",
+    "chatgpt.com",
+    "bing.com",
+    "amazon.com"
+};
+
+int check(){
+    //winsock requires WSADATA structure to hold info
+    WSADATA wsa;
+    //addrinfo is for addresses, hints will tell what kind of address we want, res will hold the list of IP addrs
+    struct addrinfo hints, *res = NULL, *p = NULL;
+    //make socket
+    SOCKET sock = INVALID_SOCKET;
+    //buffers to hold IP and Port NI_MAXHOST&&NI_MAXSERV are safe buffer holders
+    char host[NI_MAXHOST], serv[NI_MAXSERV];
+    //store return values from funtions
+    int a;
+
+    //windows makes you startup WSA and we ask for 2.2
+    if(WSAStartup(MAKEWORD(2,2), &wsa) != 0){
+        printf("WSA Startup failed.\n");
+        return -1;
+    }
+
+    //sets hints struct every byte to 0 to make sure we have no garbage values
+    memset(&hints, 0, sizeof(hints));
+
+    //we set IPv4 and IPv6 we IPs we want
+    hints.ai_family = AF_UNSPEC; 
+    //set to TCP
+    hints.ai_socktype = SOCK_STREAM;
+    //make sure its tcp
+    hints.ai_protocol = IPPROTO_TCP;
+
+    for(int i = 0; i &lt; sizeof(websites) / sizeof(websites[0]); i++){
+        printf("**Trying: %s**\n\n", websites[i]);
+        //do a DNS look up we put domain and port hints tells them what IP versions we except and res stores the list of IPs we are given
+        a = getaddrinfo(websites[i], "443", &hints, &res);
+        
+        //if getaddrinfo fails it return non-zero
+        if (a != 0){
+            printf("Failed to do DNS look up\n");
+            //clean up the WSA we made
+            //WSACleanup();
+            //return -1;
+            
+            continue;
+        }
+
+        //we loop through all the IPs that are in the IP list (res)
+        //set p to the list and loop while there is a value for p
+        //after done with loop we set p to the next IP in the IP list
+        for(p = res; p != NULL; p = p-&gt;ai_next){
+            //use getnameinfo to make sockaddr into IP format and Port it works for IPv4 and IPv6
+            //we tell it to not try a DNS reverse lookup
+            if(getnameinfo(p-&gt;ai_addr, (socklen_t)p-&gt;ai_addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV) == 0){
+                printf("Trying %s port %s\n", host, serv);
+            }
+
+            //create a socket for address
+            sock = socket(p-&gt;ai_family, p-&gt;ai_socktype, p-&gt;ai_protocol);
+            if(sock == INVALID_SOCKET){
+                //if socket fails we try another IP address
+                printf("Socket Failed\n");
+                continue;
+            }
+
+            if(connect(sock, p-&gt;ai_addr, (int)p-&gt;ai_addrlen) == SOCKET_ERROR){
+                printf("Failed to connect\n");
+                //close connection to that IP
+                closesocket(sock);
+                //reset the sock
+                sock = INVALID_SOCKET;
+                //continue to another IP
+                continue;
+            }
+
+            printf("Connected to %s port %s\n", host, serv);
+            break;
+        }
+        //frees memory
+        freeaddrinfo(res);
+        
+        if(sock == INVALID_SOCKET){
+            //couldn't connect to ANY IP
+            WSACleanup();
+            return 1;
+        }
+
+        //was able to connect to a IP
+        closesocket(sock);
+        WSACleanup();
+        return 0;
+    }
+
+}
+
+int main(){
+    if(check() == 1){
+        printf("No Internet connectivity (VM)\n");
+    }
+    else if(check() == 0){
+        printf("Internet connectivity(No VM)\n");
+    }
+}</code></pre>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
