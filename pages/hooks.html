@@ -1,1 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hooks - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Hooks</div>
+    </div>
+
+    <div class="container">
+        <h3>1. Checking Sleep Hook via JMP</h3>
+
+        <div class="explanation">
+            <p>This technique checks to see if sleep is hooked by reading the first parts of the sleep's assembly code. It gets the program's process and reads its memory and sees if the function's assembly starts off with 0xE9 or 0xFF, which indicate a hook. You can use this with other functions, as 0xE9 or 0xFF is just a JMP by replacing Sleep with another function.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+int checkInlineHook(){
+    BYTE buffer[10]; //space to read first 10 bytes of the sleep function
+    SIZE_T bytesRead;
+    
+    HANDLE hProcess = GetCurrentProcess();
+//reads mem from a process: Target, start address, where to store bytes read, how many?
+    if(ReadProcessMemory(hProcess, (LPCVOID)Sleep, buffer, sizeof(buffer), &bytesRead)){
+        //0xE9 or 0xFF = JMP = hook
+        if(buffer[0] == 0xE9 || buffer[0] == 0xFF || buffer[0] == 0xEA){
+            exit(0);
+        }
+        else{
+            return 0;
+        }
+    }
+    else{
+        printf("Error: %lu\n", GetLastError());
+        return 0;
+    }
+
+}
+
+int main(){
+    if(checkInlineHook() == 0){
+        printf("Function not hooked\n");
+    }
+    else{
+        printf("!!HOOKED FUNCTION!!\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>2. Dynamic API Resolution</h3>
+
+        <div class="explanation">
+            <p>Dynamic API function resolution is when a program dynamically obtains the address of a function it wishes to call, rather than including the function in its import address table (IAT). We can get the address of a module in memory then look for the address of the function we want to use. So instead of getting the function by declaring it straight up, we get the base address of that function/module we want by trying to find it in memory and calling it by its address.</p>
+            <p>Note: In the C code, I used strings and variable names with clear names to make the code more understandable. In real scenarios, we would either try to encrypt these names or use misleading names to make sure we reach the goal of making the static analysis more difficult.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+int main(){
+    //handle to a module, base address of module in memory 
+    HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
+    if(hKernel32 == NULL){
+        printf("Error");
+        return -1;
+    }
+    //gets address of function we want inside kernel32.dll
+    //                             Module,    name of function we want the address of
+    FARPROC pSleep = GetProcAddress(hKernel32, "Sleep");
+    if(pSleep){
+        printf("Kernel Module at: %p\n", hKernel32);
+        printf("Sleep function at: %p\n", pSleep);
+
+        ((void(WINAPI*)(DWORD))pSleep(3000));
+        
+        printf("Dummy print\n");
+    }
+
+}</code></pre>
+        </div>
+
+        <h3>3. Checking Sleep Hook via GetTickCount</h3>
+
+        <div class="explanation">
+            <p>Checking if the sleep function is hooked via comparing it with GetTickCount to see if the sleep function really waited the seconds you put in.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+int checkSleepHook(){
+    DWORD take1 = GetTickCount(); //time before sleep
+    Sleep(3000); //sleep 3 sec (3000ms)
+    DWORD take2 = GetTickCount(); //time after sleep(hopefully 3 seconds have passed)
+
+    DWORD deltaTake = take2 - take1;
+
+    if(deltaTake&lt;2900){
+        //hooked
+        exit(0);
+    }
+    
+    else{
+        //normal
+        return 0;
+    }
+}
+
+int main(){
+    if (checkSleepHook() == 0){
+        printf("\nNot a hooked function\n");
+    }
+    else{
+        printf("\n!!HOOKED FUNCTION!!\n");
+    }   
+}</code></pre>
+        </div>
+
+        <h3>4. Checking Sleep Hook via QueryPerformanceCounter</h3>
+
+        <div class="explanation">
+            <p>Similar to sleep hook by getting GetTickCount(). This technique uses QueryPerformanceCounter instead of GetTickCount() because it's more precise since it's in microseconds.</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">C/C++ Code</span>
+            <pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+
+int checkSleepHook(){
+    //64-bit int struct used for high resolution timers
+    LARGE_INTEGER freq, start, end;
+    //get ticks per sec for freq
+    QueryPerformanceFrequency(&freq);
+
+    //puts the current counter value to start
+    QueryPerformanceCounter(&start);
+
+    Sleep(3000);
+
+    //read counter again after 3 sec's should have passed
+    QueryPerformanceCounter(&end);
+
+    double time = (double)(end.QuadPart - start.QuadPart) / freq.QuadPart;
+
+    if(time &lt; 2.9){
+        //Hooked
+        exit(0);
+    }
+    else{
+        //normal
+        return 0;
+    }
+}
+
+int main(){
+    if (checkSleepHook() == 0){
+        printf("Carry on, no VM\n");
+    }
+    else{
+        printf("!!HOOKED FUNCTION!!\n");
+    }
+    return 0;
+}</code></pre>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
