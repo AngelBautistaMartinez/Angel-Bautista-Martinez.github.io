@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Enumerator - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .screenshot {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border: 1px solid #333333;
+        }
+
+        .feature-list {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .feature-list h4 {
+            color: #dc143c;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .color-legend {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #dc143c;
+        }
+
+        .color-legend .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .color-box {
+            width: 100px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .green-box {
+            background-color: #00ff00;
+            color: #000000;
+        }
+
+        .red-box {
+            background-color: #ff0000;
+            color: #ffffff;
+        }
+
+        .blue-box {
+            background-color: #0000ff;
+            color: #ffffff;
+        }
+
+        .yellow-box {
+            background-color: #ffff00;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">DNS Enumerator</div>
+    </div>
+
+    <div class="container">
+        <h3>Overview</h3>
+
+        <div class="explanation">
+            <p>DNS Enumerator is a Python reconnaissance tool designed for comprehensive DNS enumeration and analysis. It provides multiple features for gathering DNS information, discovering subdomains, finding similar domain variations useful for phishing and typosquatting, and checking email security configurations.</p>
+        </div>
+
+        <div class="feature-list">
+            <h4>Features</h4>
+            <ul>
+                <li><strong>DNS Record Enumeration</strong> - Query all common DNS record types (A, AAAA, NS, MX, PTR, SOA, TXT, CNAME)</li>
+                <li><strong>Subdomain Discovery</strong> - Enumerate subdomains from a custom wordlist</li>
+                <li><strong>Similar Domain Detection</strong> - Find available/taken domain variations (phishing research)</li>
+                <li><strong>Email Security Analysis</strong> - Check SPF, DKIM, and DMARC records</li>
+            </ul>
+        </div>
+
+        <div class="color-legend">
+            <h4 style="color: #dc143c; margin-bottom: 15px;">Output Color Legend</h4>
+            <div class="legend-item">
+                <div class="color-box blue-box">BLUE</div>
+                <span>Domain/Section Headers</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box yellow-box">YELLOW</div>
+                <span>DNS Record Types</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box green-box">GREEN</div>
+                <span>Available Domains</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box red-box">RED</div>
+                <span>Taken Domains</span>
+            </div>
+        </div>
+
+        
+
+        <h3>Usage Examples</h3>
+
+        <div class="explanation">
+            <p><strong>Basic DNS Enumeration</strong></p>
+            <p>By default, the tool queries all common DNS record types for the specified domain(s):</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 1: Basic DNS Records</span>
+            <pre><code class="language-bash">python main.py -d microsoft.com</code></pre>
+        </div>
+
+        <div class="screenshot">
+            <pre style="background-color: #0d1117; color: #c9d1d9; padding: 20px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em;">
+PS C:\Users\Angel\Desktop\projects\dnspython&gt; python main.py -d mircosoft.com
+<span style="color: #58a6ff;">------------Domain: mircosoft.com------------</span>
+<span style="color: #d29922;">-----Record: A-----</span>
+20.112.250.133
+
+20.236.44.162
+
+20.231.239.246
+
+20.70.246.20
+
+20.76.201.171
+
+No Record found.
+<span style="color: #d29922;">-----Record: NS-----</span>
+ns4-09.azure-dns.info.
+
+ns1-09.azure-dns.com.
+            </pre>
+        </div>
+
+        <div class="explanation">
+            <p><strong>Subdomain Enumeration</strong></p>
+            <p>Discover active subdomains using a wordlist:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 2: Enumerate Subdomains</span>
+            <pre><code class="language-bash">python main.py -d microsoft.com -enumSubdomains subdomain_list.txt</code></pre>
+        </div>
+
+        <div class="screenshot">
+            <pre style="background-color: #0d1117; color: #c9d1d9; padding: 20px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em;">
+<span style="color: #58a6ff;">------------subdomains of: mircosoft.com------------</span>
+www.mircosoft.com.com
+mail.mircosoft.com.com
+ftp.mircosoft.com.com
+localhost.mircosoft.com.com
+webmail.mircosoft.com.com
+smtp.mircosoft.com.com
+pop.mircosoft.com.com
+ns1.mircosoft.com.com
+webdisk.mircosoft.com.com
+ns2.mircosoft.com.com
+cpanel.mircosoft.com.com
+whm.mircosoft.com.com
+autodiscover.mircosoft.com.com
+autoconfig.mircosoft.com.com
+m.mircosoft.com.com
+imap.mircosoft.com.com
+test.mircosoft.com.com
+ns.mircosoft.com.com
+blog.mircosoft.com.com
+            </pre>
+        </div>
+
+        <div class="explanation">
+            <p><strong>Similar Domain Detection</strong></p>
+            <p>Find domain variations useful for phishing or domain squatting research</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 3: Check Domain Variations</span>
+            <pre><code class="language-bash">python main.py -d microsoft.com -enumTLD TLD_list.txt -enumSubdomains subdomain_list.txt</code></pre>
+        </div>
+
+        <div class="screenshot">
+            <pre style="background-color: #0d1117; color: #c9d1d9; padding: 20px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em;">
+<span style="color: #58a6ff;">------------similar domains: mircosoft.com------------</span>
+<span style="color: #3fb950;">mircosoftwww.com Available</span>
+<span style="color: #3fb950;">mircosoft-www.com Available</span>
+<span style="color: #3fb950;">mircosoftmail.com Available</span>
+<span style="color: #3fb950;">mircosoft-mail.com Available</span>
+<span style="color: #3fb950;">mircosoftftp.com Available</span>
+<span style="color: #3fb950;">mircosoft-ftp.com Available</span>
+<span style="color: #3fb950;">mircosoftlocalhost.com Available</span>
+<span style="color: #3fb950;">mircosoft-localhost.com Available</span>
+<span style="color: #3fb950;">mircosoftwebmail.com Available</span>
+<span style="color: #3fb950;">mircosoft-webmail.com Available</span>
+<span style="color: #3fb950;">mircosoftsmtp.com Available</span>
+<span style="color: #3fb950;">mircosoft-smtp.com Available</span>
+<span style="color: #3fb950;">mircosoftpop.com Available</span>
+<span style="color: #3fb950;">mircosoft-pop.com Available</span>
+<span style="color: #3fb950;">mircosoftns1.com Available</span>
+<span style="color: #3fb950;">mircosoft-ns1.com Available</span>
+<span style="color: #3fb950;">mircosoftwebdisk.com Available</span>
+<span style="color: #3fb950;">mircosoft-webdisk.com Available</span>
+<span style="color: #3fb950;">mircosoftns2.com Available</span>
+<span style="color: #f85149;">mircosoftads.info Taken</span>
+<span style="color: #f85149;">mircosoft-ads.info Taken</span>
+<span style="color: #3fb950;">mircosofthost.info Available</span>
+            </pre>
+        </div>
+
+        <div class="explanation">
+            <p><strong>Email Security Check</strong></p>
+            <p>Analyze SPF, DKIM, and DMARC records:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Example 4: Check Email Security Records</span>
+            <pre><code class="language-bash">python main.py -d microsoft.com -enumSec True</code></pre>
+        </div>
+
+        <h3>Command-Line Arguments</h3>
+
+        <div class="explanation">
+            <p><strong>Required Arguments:</strong></p>
+            <ul>
+                <li><span class="inline-code">-d, --domain</span> - Target domain(s) to enumerate (supports multiple domains)</li>
+            </ul>
+
+            <p><strong>Optional Arguments:</strong></p>
+            <ul>
+                <li><span class="inline-code">-enumSubdomains FILE</span> - Path to subdomain wordlist file</li>
+                <li><span class="inline-code">-enumTLD FILE</span> - Path to TLD list file for domain variation detection</li>
+                <li><span class="inline-code">-enumSec BOOL</span> - Check SPF, DKIM, and DMARC records (True/False)</li>
+            </ul>
+        </div>
+
+        
+
+        
+      
+        <h3>Full Source Code</h3>
+
+        <div class="code-section">
+            <span class="code-label">Python Code</span>
+            <pre><code class="language-python">import dns.resolver
+import argparse
+from colorama import Fore
+
+parser = argparse.ArgumentParser(description='DNS Enumerator')
+parser.add_argument('-d', '--domain', nargs="*", required=True, help="Enter domain(s)")
+parser.add_argument('-enumSubdomains', required=False, help="Whether you want to search for subdomains. Enter file of list of subdomain names wished to look up")
+parser.add_argument('-enumTLD', required=False, help="Whether you want to search available and unavailable TLD's of a domain. Enter file of list of subdomain names wished to look up")
+parser.add_argument('-enumSec', required=False, help="Check a domains, SPF, DKIM, DMARC", type=bool)
+
+
+args = parser.parse_args()
+
+record_types = ['A', 'AAAA', 'NS', 'MX', 'PTR', 'SOA', 'TXT', 'CNAME'] 
+
+
+def get_DNS_data(domains):
+    for domain in domains:
+        print(f"{Fore.BLUE}------------Domain: {domain}------------{Fore.RESET}")
+        for type in record_types:
+            try:
+                answers = dns.resolver.resolve(domain, type)
+                print(f"{Fore.YELLOW}-----Record: {type}-----{Fore.RESET}")
+                for server in answers:
+                    print(server.to_text()+"\n")
+
+            except dns.resolver.NoAnswer:
+                print("No Record found.")
+                pass #try the next type
+            except KeyboardInterrupt:
+                quit()
+            except dns.resolver.NXDOMAIN:
+                print("Invalid domain")
+                quit()
+            except Exception as e:
+                print(f"Error: {e}")
+                quit()
+
+
+def enumerate_subdomains(domains):
+    for domain in domains:
+        try:
+            with open(args.enumsubdomains, 'r') as file:
+                print(f"{Fore.BLUE}------------subdomains of: {domain}------------{Fore.RESET}")
+                lines = file.readlines()
+
+                for line in lines:
+                    subdomain = line.strip()
+                    try:
+                        ip_value = dns.resolver.resolve(f"{subdomain}.{domain}.com","A")
+                        if ip_value:
+                            print(f"{subdomain}.{domain}.com")
+                    except Exception:
+                        pass
+        except FileNotFoundError:
+                    print("File Not Found")    
+
+
+def enumerate_TLDs(domains):
+    for domain in domains:
+        print(f"{Fore.BLUE}------------similar domains: {domain}------------{Fore.RESET}")
+
+        domain = domain.partition('.')[0]
+
+        try:
+            with open(args.enumTLD, 'r') as tlds, open(args.enumsubdomains) as subs:
+                tlds = [line.strip() for line in tlds.readlines()]
+                subs = [line.strip() for line in subs.readlines()]
+
+                for tld in tlds:
+                    for sub in subs:
+                        domain1 = f"{domain}{sub}.{tld}"
+                        domain2 = f"{domain}-{sub}.{tld}"
+                        
+                        for d in [domain1,domain2]:
+                            try:
+                                dns.resolver.resolve(d, "A")
+                                print(f"{Fore.RED}{d} Taken{Fore.RESET}")
+                            except dns.resolver.NXDOMAIN:
+                                print(f"{Fore.GREEN}{d} Available{Fore.RESET}")
+                            except Exception:
+                                pass
+                            
+        except FileNotFoundError:
+            print("Need file")
+        except KeyboardInterrupt:
+            quit()
+        except:
+            pass
+
+#check sec - spf, dkim, dmarc
+def check_sec(domains):
+    selectors = [
+    "google._domainkey",
+    "selector1._domainkey",
+    "selector2._domainkey",
+    "k1._domainkey",
+    "mandrill._domainkey",
+    "s1._domainkey",
+    "s2._domainkey",
+    "smtpapi._domainkey",
+    "amazonses._domainkey",
+    "default._domainkey",
+    "dkim._domainkey",
+    "zoho._domainkey",
+    "zmail._domainkey",
+    "everlytickey1._domainkey",
+    "everlytickey2._domainkey",
+    "mxvault._domainkey",
+    "ctct1._domainkey",
+    "ctct2._domainkey",
+    "sm._domainkey",
+    "sig1._domainkey",
+    "litesrv._domainkey",
+    "zendesk1._domainkey",
+    "zendesk2._domainkey",
+    "mail._domainkey",
+    "email._domainkey"
+    ]
+    #check spf
+    for domain in domains:
+        try:
+            spf_records = dns.resolver.resolve(domain, 'TXT')
+            for spf_record in spf_records:
+                record = spf_record.to_text()
+                if "v=spf1" in record:
+                    print(f"SPF: {record}")
+        except Exception as e:
+            print(e)
+
+    #check dmarc
+    for domain in domains:
+        try:
+            dmarc_records = dns.resolver.resolve(f"_dmarc.{domain}", 'TXT')
+            for dmarc_record in dmarc_records:
+                record = dmarc_record.to_text()
+                if "v=DMARC1" in record:
+                    print(f"DMARC: {record}")
+        except Exception as e:
+            print(e)
+
+    #check dkim
+    for domain in domains:
+        try:
+            for selector in selectors:
+                dkim_records = dns.resolver.resolve(f"{selector}._domainkey.{domain}", "TXT")
+                for record in dkim_records:
+                    record = record.to_text()
+                    if "v=DKIM1" in record:
+                        print(f"Selector: {selector}")
+                        print(f"DKIM: {record}")
+
+        except Exception as e:
+            pass
+
+def main():
+    
+    get_DNS_data(args.domain)
+
+    if args.enumSubdomains:    
+        enumerate_subdomains(args.domain)
+    if args.enumTLD:
+         enumerate_TLDs(args.domain)
+    if args.enumSec:    
+        check_sec(args.domain)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+        </div>
+
+        <h3>Wordlist Files</h3>
+
+        <div class="explanation">
+            <p>The tool requires two wordlist files for subdomain and TLD enumeration:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">TLD_list.txt</span>
+            <pre><code>com
+org
+net
+info
+biz
+name
+pro
+xyz
+online
+site
+us
+uk
+ca
+de
+fr
+au
+jp
+cn
+in
+br
+io
+ai
+dev
+app
+tech
+cloud
+software
+systems
+network
+tools
+me
+co
+tv
+fm
+store
+shop
+blog
+news
+media
+design
+academy
+institute
+university
+law
+doctor
+finance
+consulting
+space
+world
+digital</code></pre>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">subdomain_list.txt</span>
+            <pre><code>www
+mail
+ftp
+localhost
+webmail
+smtp
+pop
+ns1
+webdisk
+ns2
+cpanel
+whm
+autodiscover
+autoconfig
+m
+imap
+test
+ns
+blog
+pop3
+dev
+www2
+admin
+forum
+news
+vpn
+ns3
+mail2
+new
+mysql
+old
+lists
+support
+mobile
+mx
+static
+docs
+beta
+shop
+sql
+secure
+demo
+cp
+calendar
+wiki
+web
+media
+email
+images
+img
+www1
+intranet
+portal
+video
+sip
+dns2
+api
+cdn
+stats
+dns1
+ns4
+www3
+dns
+search
+staging
+server
+mx1
+chat
+wap
+my
+svn
+mail1
+sites
+proxy
+ads
+host
+crm
+cms
+backup
+mx2
+lyncdiscover
+info
+apps
+download
+remote
+db
+forums
+store
+relay
+files
+newsletter
+app
+live
+owa
+en
+start
+sms
+office
+exchange
+ipv4</code></pre>
+        </div>
+
+  
+
+        <div class="explanation">
+            <p><strong>Important Notes:</strong></p>
+            <ul>
+                <li>This tool is for educational and research only</li>
+                <li>Aggressive scanning may trigger rate limits or security alerts</li>
+                <li>DNS enumeration can reveal sensitive infrastructure information</li>
+                <li>Some DNS servers may log or block multiple queries</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
