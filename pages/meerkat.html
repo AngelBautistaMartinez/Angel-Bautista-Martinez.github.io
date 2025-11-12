@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meerkat - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .ascii-art {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px auto;
+            max-width: 1000px;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            text-align: center;
+            border: 2px solid #dc143c;
+            font-size: 0.85em;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .explanation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .screenshot {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border: 1px solid #333333;
+        }
+
+        .feature-list {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .feature-list h4 {
+            color: #dc143c;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .warning-box {
+            background-color: #4a3d2d;
+            border-left: 4px solid #ffa500;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Meerkat Post-Exploitation Tool</div>
+    </div>
+
+    <div class="ascii-art">
+  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\
+  ( -.- )( o.o )( $.$ )( @.@ )( &lt;.&lt; )( =.= )( &gt;.&gt; )( *.* )( ^.^ )( `.` )
+  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;
+  /\_/\       _____                       __            __       /\_/\
+  ( x.x )     /     \   ____   ___________|  | _______ _/  |_    ( Q.Q )
+  &gt; ^ &lt;     /  \ /  \_/ __ \_/ __ \_  __ \  |/ /\__  \\   __\    &gt; ^ &lt;
+  /\_/\    /    Y    \  ___/\  ___/|  | \/    &lt;  / __ \|  |      /\_/\
+  ( v.v )   \____|__  /\___  &gt;\___  &gt;__|  |__|_ \(____  /__|     ( ~.~ )
+  &gt; ^ &lt;            \/     \/     \/           \/     \/          &gt; ^ &lt;
+  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\
+  ( Q.Q )( w.w )( !.! )( #.# )( '.' )( u.u )( $.$ )( &amp;.&amp; )( 0.0 )( x.x )
+  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;
+    </div>
+
+    <div class="container">
+        <h3>Overview</h3>
+
+        <div class="explanation">
+            <p>Meerkat is a PowerShell-based post-exploitation tool designed for network reconnaissance and system enumeration after gaining access to a Windows machine. The tool provides an interactive menu-driven interface for performing various reconnaissance tasks.</p>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Warning:</strong> This is an on-going project. Some options are still being worked on. This tool is for educational and authorized testing purposes only.
+        </div>
+
+        <div class="feature-list">
+            <h4>Features</h4>
+            <ul>
+                <li><strong>Local System Enumeration</strong> - Gather detailed system information</li>
+                <li><strong>Network Device Discovery</strong> - Find active devices and scan for open ports</li>
+                <li><strong>Network Traffic Analysis</strong> - Monitor network activity on adapters</li>
+                <li><strong>Privilege Escalation</strong> - Check for privilege escalation vectors (In Development)</li>
+                <li><strong>Active Directory Status</strong> - Detect and enumerate AD environment</li>
+            </ul>
+        </div>
+
+        <h3>Usage</h3>
+
+        <div class="explanation">
+            <p>Run the script in PowerShell to access the interactive menu:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Running Meerkat</span>
+            <pre><code class="language-powershell">PS C:\&gt; .\main.ps1</code></pre>
+        </div>
+
+        <h3>Menu Options</h3>
+
+        <div class="explanation">
+            <p><strong>1. Local System Enumeration</strong></p>
+            <p>Executes <span class="inline-code">systeminfo.exe</span> to gather comprehensive information about the local system including OS version, hotfixes, network configuration, and hardware details.</p>
+
+            <p><strong>2. Find Active Devices and Open Ports</strong></p>
+            <p>Performs network reconnaissance by:</p>
+            <ul>
+                <li>Pinging all IPs in the specified subnet to find active devices</li>
+                <li>Scanning common ports (80, 8080, 443, 110, 53, 21, 22, 3306, 3389) on active devices</li>
+                <li>Also scanning inactive IPs for open ports (to detect stealth devices)</li>
+                <li>Displaying a summary of all discovered devices and their open ports</li>
+            </ul>
+
+            <p><strong>3. Network Traffic</strong></p>
+            <p>Monitors network adapters for activity by comparing received bytes before and after a 5-second interval. Detects which network interfaces have active traffic.</p>
+            <ul>
+                <li>Non-admin mode: Only checks for network status and traffic detection</li>
+                <li>Admin mode: (In Development) Will provide more detailed traffic analysis</li>
+            </ul>
+
+            <p><strong>4. Privilege Escalation</strong></p>
+            <p>⚠️ Currently in development.</p>
+
+            <p><strong>5. Check AD Status</strong></p>
+            <p>Checks if the system is part of an Active Directory domain and attempts to enumerate:</p>
+            <ul>
+                <li>Domain membership status</li>
+                <li>SMB shares</li>
+                <li>Computer account information</li>
+                <li>Secure channel status</li>
+                <li>Domain information (requires RSAT tools)</li>
+            </ul>
+
+            <p><strong>6. Exit Program</strong></p>
+            <p>Exits the Meerkat tool.</p>
+        </div>
+
+        <h3>Configuration</h3>
+
+        <div class="explanation">
+            <p>Before using the network scanning features, you need to configure the subnet in the code:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Edit Subnet Configuration</span>
+            <pre><code class="language-powershell"># In the PingDevicesAndPorts function, set your subnet
+$Subnet = "192.168.1."  # Change to your target subnet</code></pre>
+        </div>
+
+        <h3>Sample Output</h3>
+
+        <div class="screenshot">
+            <pre style="background-color: #0d1117; color: #c9d1d9; padding: 20px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em;">
+PS C:\Users\Angel\Desktop\projects\Meerkat&gt; ./main.ps1
+  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\
+  ( -.- )( o.o )( $.$ )( @.@ )( &lt;.&lt; )( =.= )( &gt;.&gt; )( *.* )( ^.^ )( `.` )
+  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;
+  /\_/\       _____                       __            __       /\_/\
+  ( x.x )     /     \   ____   ___________|  | _______ _/  |_    ( Q.Q )
+  &gt; ^ &lt;     /  \ /  \_/ __ \_/ __ \_  __ \  |/ /\__  \\   __\    &gt; ^ &lt;
+  /\_/\    /    Y    \  ___/\  ___/|  | \/    &lt;  / __ \|  |      /\_/\
+  ( v.v )   \____|__  /\___  &gt;\___  &gt;__|  |__|_ \(____  /__|     ( ~.~ )
+  &gt; ^ &lt;            \/     \/     \/           \/     \/          &gt; ^ &lt;
+  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\
+  ( Q.Q )( w.w )( !.! )( #.# )( '.' )( u.u )( $.$ )( &amp;.&amp; )( 0.0 )( x.x )
+  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;
+  1.Local System Enumeration
+  2.Find Active Devices and Open ports
+  3.Network traffic
+  4.Privilege Escalation
+  5.Check AD status
+  6.Exit Program
+[Option]:: 2
+[Scanning for Active Devices and Open ports]
+10.73.228.4 Active
+10.73.228.11 Active
+10.73.228.12 Active
+10.73.228.30 Active
+10.73.228.93 Active
+10.73.228.94 Active
+10.73.228.111 Active
+Port 80 is open on 10.73.228.30
+Port 443 is open on 10.73.228.30
+Port 22 is open on 10.73.228.93
+            </pre>
+        </div>
+
+        
+
+        <h3>Full Source Code</h3>
+
+        <div class="code-section">
+            <span class="code-label">PowerShell Code</span>
+            <pre><code class="language-powershell">function logo {
+  $loop = $true
+  while ($loop) {
+@"
+  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\
+  ( -.- )( o.o )( $.$ )( @.@ )( &lt;.&lt; )( =.= )( &gt;.&gt; )( *.* )( ^.^ )( `.` )
+  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;
+  /\_/\       _____                       __            __       /\_/\
+  ( x.x )     /     \   ____   ___________|  | _______ _/  |_    ( Q.Q )
+  &gt; ^ &lt;     /  \ /  \_/ __ \_/ __ \_  __ \  |/ /\__  \\   __\    &gt; ^ &lt;
+  /\_/\    /    Y    \  ___/\  ___/|  | \/    &lt;  / __ \|  |      /\_/\
+  ( v.v )   \____|__  /\___  &gt;\___  &gt;__|  |__|_ \(____  /__|     ( ~.~ )
+  &gt; ^ &lt;            \/     \/     \/           \/     \/          &gt; ^ &lt;
+  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\  /\_/\
+  ( Q.Q )( w.w )( !.! )( #.# )( '.' )( u.u )( $.$ )( &amp;.&amp; )( 0.0 )( x.x )
+  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;  &gt; ^ &lt;
+  1.Local System Enumeration
+  2.Find Active Devices and Open ports
+  3.Network traffic
+  4.Privilege Escalation
+  5.Check AD status
+  6.Exit Program
+"@
+    $option = Read-Host "[Option]:"
+    switch ($option) {
+      "1" { enumeration }
+      "2" { PingDevicesAndPorts }
+      "3" { NetworkTraffic }
+      "4" { PrivledgeEscalation }
+      "5" { CheckActiveDirectory }
+      "6" { $loop = $false }
+      Default { Write-Host "Invalid option. Try again." }
+    }
+  }
+}
+
+
+function enumeration{
+  param()
+  Write-Host "[Local System Enumeration]" -ForegroundColor Red
+  Write-Host "Systeminfo" -ForegroundColor Green
+  systeminfo.exe
+
+}
+
+
+function PingDevicesAndPorts{
+  param()
+  Write-Host "[Scanning for Active Devices and Open ports]" -ForegroundColor Red
+  $Subnet = ""
+  $ActiveDevices = @{}
+  $PortsToScan = @(80,8080,443,110,53,21,22,3306,3389)
+
+
+
+
+  #pings devices to see status
+  for($i = 0; $i -le 254; $i++){
+    $ip = "$Subnet$i"
+    #if status is active, saves IP to dict
+    if(Test-Connection -ComputerName $ip -Count 1 -Quiet){
+      $ActiveDevices[$ip] = @()
+      Write-Host "$ip Active" -ForegroundColor Green
+    }
+  }
+
+
+  #port scans all the devices that statuses were active
+  foreach($device in $ActiveDevices.Keys){
+    foreach($port in $PortsToScan){
+      $socket = New-Object System.Net.Sockets.TcpClient
+      $socket.ConnectAsync($device, $port).Wait(100)
+      if($socket.Connected){
+        Write-Host "Port $port is open on $device" -ForegroundColor Green
+        $ActiveDevices[$device]+=$port
+      }
+      $socket.Close()
+    }
+  }
+
+
+  for($i = 0; $i -le 254; $i++){
+    $ip = "$subnet$i"
+    if($ActiveDevices.ContainsKey($ip)){
+      continue
+    }
+    foreach($port in $PortsToScan){
+      $socket = New-Object System.Net.Sockets.TcpClient
+      $socket.ConnectAsync($ip, $port).Wait(100)
+
+
+
+
+      if($socket.Connected){
+        Write-Host "Port $port open on inactive IP: $ip" -ForegroundColor Green
+        $ActiveDevices[$ip] = @($port)
+      }
+      $socket.Close()
+    }
+  }
+
+
+  foreach ($device in $ActiveDevices.GetEnumerator()) {
+      Write-Host "Device: $($device.Key)"
+      Write-Host "Open Ports: $($device.Value -join ', ')"
+      Write-Host ""
+  }
+}
+
+
+function CheckActiveDirectory{
+  param()
+  Write-Host "[Checking for Active Directory]" -ForegroundColor Red
+  if((Get-WmiObject Win32_ComputerSystem).PartofDomain){
+    Write-Host "Active Directory Active" -ForegroundColor Green
+  }
+  else{
+    Write-Host "No Active Directory"
+  }
+  try{
+    Get-SmbShare
+  }
+  catch{
+    Write-Host "No SMB Share"
+  }
+
+
+  try{
+    #require-s RSTA tools(AD module) to be installed
+    Get-ADComputer -Identity $env:COMPUTERNAME
+    Test-ComputerSecureChannel
+    Get-ADDomain
+  }
+  catch{
+    Write-Host "No Active Directory" -ForegroundColor Green
+  }
+}
+
+
+
+
+function NetworkTraffic{
+ 
+  param()
+ 
+  if(([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+    admin
+  }
+  else {
+    notadmin
+  }
+
+
+  function notadmin {
+    param ()
+    Write-Host "Currently not admin. Can only check Network Status, Not see traffic"
+    Write-Host "[Checking for any Network Traffic]" -ForegroundColor Red
+    $Adapters = @()
+    $Adapters+=Get-NetAdapter | Select-Object -ExpandProperty Name
+   
+    foreach($adapter in $Adapters){
+      try{
+        $before = (Get-NetAdapterStatistics -Name $adapter -ErrorAction Stop).ReceivedBytes
+        Start-Sleep -Seconds 5
+        $after = (Get-NetAdapterStatistics -Name $adapter -ErrorAction Stop).ReceivedBytes
+       
+        if ($after -gt $before) {
+            Write-Host "Traffic detected on $adapter" -ForegroundColor Green
+        }
+        else{
+            "No traffic detected on $adapter"
+        }
+      }
+      catch{}
+    }
+   
+  }
+
+
+  function admin {
+    param ()
+    continue
+  }
+}
+
+
+function PrivledgeEscalation {
+  param ()
+  continue
+}
+
+
+logo</code></pre>
+        </div>
+
+        <h3>Requirements</h3>
+
+        <div class="explanation">
+            <ul>
+                <li>Windows PowerShell 5.0 or higher</li>
+                <li>Administrator privileges recommended for full functionality</li>
+                <li>RSAT (Remote Server Administration Tools) for full AD enumeration features</li>
+                <li>Network access to target subnet for scanning features</li>
+            </ul>
+        </div>
+
+        <h3>Security Considerations</h3>
+
+        <div class="explanation">
+            <p><strong>⚠️ Legal Warning:</strong></p>
+            <ul>
+                <li>This tool is for authorized penetration testing and security research only</li>
+                <li>Unauthorized port scanning and network reconnaissance may be illegal</li>
+                <li>Always obtain proper authorization before testing networks</li>
+                <li>Network scanning may trigger IDS/IPS alerts</li>
+                <li>Some antivirus software may flag this as malicious</li>
+                <li>Use only in controlled environments or with explicit permission</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
